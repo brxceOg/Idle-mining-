@@ -153,25 +153,33 @@ function chooseTarget(){
  w.tx=x;
  return {x,y,t,score:0};
 }
-function tickWorker(dt){const w=state.worker;if(!w)return;if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+(w.id-1)*.8+Math.sin(performance.now()/1500+w.id)*.25;w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
-// Walk across the surface to the chosen starting column before mining.
-if(w.mode==='approach'){
-const dx=w.startX-w.x;
-if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(1.8+(state.upgrades.movementSpeed||0)*.45));return;}
-w.x=w.startX;w.mode='mine';
+function tickWorker(dt){
+ const w=state.worker;if(!w)return;
+ if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+(w.id-1)*.8+Math.sin(performance.now()/1500+w.id)*.25;w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
+ if(w.mode==='approach'){
+  const dx=w.startX-w.x;
+  if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(1.8+(state.upgrades.movementSpeed||0)*.45));return;}
+  w.x=w.startX;w.mode='mine';
+ }
+ if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
+ if(!w.target||!tileAt(w.target.x,w.target.y)){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
+ w.x=w.target.x;w.tx=w.target.x;
+ const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
+ const tx=w.target.x,ty=w.target.y;
+ w.mode='mine';w.progress+=dt;
+ const hitEvery=Math.max(.35,Math.pow(.88,state.upgrades.swingSpeed||0));
+ if(w.progress>=hitEvery){
+  w.progress-=hitEvery;t.hp-=1+(state.upgrades.miningPower||0);w.walk+=dt;
+  if(t.hp<=0){
+   const type=t.type,val=mats[type].value;state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;
+   state.bestDepth=Math.max(state.bestDepth,Math.max(0,Math.floor((w.y-1)*TILE/32)));
+   w.target=null;w.progress=0;
+   if(val>0)note('Found '+type+'! +$'+val);else if(Math.random()<.12)note('Cleared dirt and opened the way deeper.');
+   save();
+  }
+ }
 }
-// Fall into cleared space instead of walking through solid terrain.
-if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
-if(!w.target||!tileAt(w.target.x,w.target.y)){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
- // Keep the miner's body centered over the active target column throughout
- // the entire mining cycle and while falling through that same opening.
- w.x=w.target.x;
- w.tx=w.target.x;
-const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
-const tx=w.target.x,ty=w.target.y;
-// Targets are always adjacent to the worker. Stay in the clear tile beside
-// the block instead of walking into the solid tile being mined.
-w.mode='mine';w.progress+=dt;const hitEvery=Math.max(.35,Math.pow(.88,state.upgrades.swingSpeed||0));if(w.progress>=hitEvery){w.progress-=hitEvery;t.hp-=1+(state.upgrades.miningPower||0);w.walk+=dt;if(t.hp<=0){const type=t.type,val=mats[type].value;state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;state.bestDepth=Math.max(state.bestDepth,Math.max(0,Math.floor((w.y-1)*TILE/32)));w.target=null;w.progress=0;if(val>0)note('Found '+type+'! +
+function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of state.workers){state.worker=worker;tickWorker(dt);}state.worker=state.workers[0]||null;}
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w)return;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
