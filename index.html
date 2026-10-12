@@ -171,21 +171,25 @@ function chooseTarget(){
  if(level<=0)return {x,y,t:direct,score:0};
  const scanRows=6+level*5;
  const currentScore=columnProspect(x,y,scanRows);
- // First, take an actually visible valuable block directly beside the miner.
- // Mine it from the current column, then walk into the exact space it occupied.
+ // Prefer valuable ore directly to either side, but never mine a diagonal tile
+ // through a solid block at the miner's current body height.
  let sideOre=null;
  for(const direction of [-1,1]){
   const sideX=x+direction;
   if(sideX<1||sideX>=COLS-1)continue;
-  const sideTile=tileAt(sideX,y);
-  if(!sideTile)continue;
-  const sideValue=mats[sideTile.type].value;
+  const oreTile=tileAt(sideX,y);
+  if(!oreTile)continue;
+  const oreValue=mats[oreTile.type].value;
   const directValue=mats[direct.type].value;
-  if(sideValue>directValue&&(!sideOre||sideValue>sideOre.value)){
-   sideOre={x:sideX,y,t:sideTile,value:sideValue};
-  }
+  if(oreValue<=directValue)continue;
+  const entryY=Math.floor(w.y);
+  const entryTile=tileAt(sideX,entryY);
+  const candidate=entryTile
+   ? {x:sideX,y:entryY,t:entryTile,value:oreValue,routeAfter:true,sideEntry:true}
+   : {x:sideX,y,t:oreTile,value:oreValue,routeAfter:false,sideEntry:false};
+  if(!sideOre||candidate.value>sideOre.value)sideOre=candidate;
  }
- if(sideOre)return {x:sideOre.x,y:sideOre.y,t:sideOre.t,score:sideOre.value,routeAfter:true,sideOre:true};
+ if(sideOre)return {x:sideOre.x,y:sideOre.y,t:sideOre.t,score:sideOre.value,routeAfter:sideOre.routeAfter,sideEntry:sideOre.sideEntry};
  let bestX=x,bestScore=currentScore;
  // Scout sideways, but move only one tile per decision so the miner visibly
  // walks across the surface of intact blocks instead of snapping to a target.
