@@ -91,14 +91,14 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 const TILE=32, COLS=28, ROWS=100, SAVE_KEY='idleMiningPhase1Save';
 const mats={
  air:{solid:false,hp:0,value:0,color:'#000'},
- grass:{solid:true,hp:6,value:0,color:'#68a84c'},
- dirt:{solid:true,hp:7,value:0,color:'#9a633d'},
- stone:{solid:true,hp:16,value:1,color:'#788078'},
- coal:{solid:true,hp:14,value:3,color:'#343a38'},
- copper:{solid:true,hp:22,value:6,color:'#c47c4c'},
- iron:{solid:true,hp:29,value:12,color:'#a8aaa0'},
- silver:{solid:true,hp:42,value:25,color:'#d4ded8'},
- gold:{solid:true,hp:54,value:50,color:'#f3c64c'}
+ grass:{solid:true,hp:5,value:0,color:'#68a84c'},
+ dirt:{solid:true,hp:6,value:0,color:'#9a633d'},
+ stone:{solid:true,hp:15,value:1,color:'#788078'},
+ coal:{solid:true,hp:13,value:3,color:'#343a38'},
+ copper:{solid:true,hp:21,value:6,color:'#c47c4c'},
+ iron:{solid:true,hp:28,value:12,color:'#a8aaa0'},
+ silver:{solid:true,hp:41,value:25,color:'#d4ded8'},
+ gold:{solid:true,hp:53,value:50,color:'#f3c64c'}
 };
 const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
