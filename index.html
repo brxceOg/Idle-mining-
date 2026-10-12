@@ -171,6 +171,21 @@ function chooseTarget(){
  if(level<=0)return {x,y,t:direct,score:0};
  const scanRows=6+level*5;
  const currentScore=columnProspect(x,y,scanRows);
+ // First, take an actually visible valuable block directly beside the miner.
+ // Mine it from the current column, then walk into the exact space it occupied.
+ let sideOre=null;
+ for(const direction of [-1,1]){
+  const sideX=x+direction;
+  if(sideX<1||sideX>=COLS-1)continue;
+  const sideTile=tileAt(sideX,y);
+  if(!sideTile)continue;
+  const sideValue=mats[sideTile.type].value;
+  const directValue=mats[direct.type].value;
+  if(sideValue>directValue&&(!sideOre||sideValue>sideOre.value)){
+   sideOre={x:sideX,y,t:sideTile,value:sideValue};
+  }
+ }
+ if(sideOre)return {x:sideOre.x,y:sideOre.y,t:sideOre.t,score:sideOre.value,routeAfter:true,sideOre:true};
  let bestX=x,bestScore=currentScore;
  // Scout sideways, but move only one tile per decision so the miner visibly
  // walks across the surface of intact blocks instead of snapping to a target.
@@ -201,8 +216,9 @@ function tickWorker(dt){
  if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
  if(w.target&&!tileAt(w.target.x,w.target.y)){if(w.target.x!==Math.round(w.x))w.routeX=w.target.x;w.target=null;}
  if(!w.target){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
- // For a route change, break the neighboring block first, then walk into the opened column.
- // This keeps the miner grounded instead of sliding diagonally across an intact block.
+ // Side targets are mined while the miner stays centered in the current column.
+ // Once that exact tile is destroyed, the existing break handler sends the miner
+ // horizontally into its cleared footprint; gravity then drops them onto the next tile.
  if(w.target.x!==Math.round(w.x)&&!w.target.routeAfter){w.routeX=w.target.x;w.mode='walk';return;}
  if(!w.target.routeAfter){w.x=w.target.x;w.tx=w.target.x;}
  const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
