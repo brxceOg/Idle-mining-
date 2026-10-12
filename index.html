@@ -635,6 +635,33 @@ function drawCaveBackdrop(cw,ch,tw,th,camera){
 function drawCaveLife(cw,tw,th,camera){
  const now=performance.now()/1000,scale=tw/32,offset=(cw-COLS*tw)/2;
  const stagingTop=CAVE_START*th-camera,stagingBottom=(CAVE_START+9)*th-camera;
+ // Bioluminescent cave gnats drift through the staging cavern and cast soft,
+ // overlapping pools of fluorescent teal and spring-green light onto nearby rock.
+ ctx.save();
+ ctx.globalCompositeOperation='lighter';
+ for(let i=0;i<7;i++){
+  const phase=i*1.83,speed=.12+(i%4)*.035;
+  const range=Math.max(tw*2,cw-tw*2);
+  const x=tw+( (now*tw*speed*2.8+phase*tw*2.7)%range );
+  const y=stagingTop+th*(.9+(i%5)*1.12)+Math.sin(now*(1.15+i*.07)+phase)*th*.42;
+  if(y<stagingTop-th||y>stagingBottom)continue;
+  const pulse=.78+.22*Math.sin(now*3.2+phase),radius=tw*(.7+(i%3)*.22)*pulse;
+  const hue=i%3===0?'#b8ff79':i%3===1?'#55ffe0':'#8af7c9';
+  const glow=ctx.createRadialGradient(x,y,0,x,y,radius*4.4);
+  glow.addColorStop(0,i%3===0?'rgba(184,255,121,.34)':i%3===1?'rgba(85,255,224,.32)':'rgba(138,247,201,.32)');
+  glow.addColorStop(.28,i%3===0?'rgba(143,255,102,.15)':i%3===1?'rgba(67,231,220,.15)':'rgba(103,233,174,.15)');
+  glow.addColorStop(1,'rgba(70,255,205,0)');
+  ctx.fillStyle=glow;ctx.fillRect(x-radius*4.4,y-radius*4.4,radius*8.8,radius*8.8);
+  // Tiny segmented body with two beating wings and a bright luminous abdomen.
+  const flutter=Math.sin(now*15+phase)*tw*.055;
+  ctx.fillStyle='rgba(166,255,219,.55)';
+  ctx.fillRect(x-tw*.12,y-th*.10-flutter,tw*.09,th*.07);
+  ctx.fillRect(x+tw*.035,y-th*.10+flutter,tw*.09,th*.07);
+  ctx.fillStyle='#193b3c';ctx.fillRect(x-tw*.075,y-th*.035,tw*.15,th*.09);
+  ctx.fillStyle=hue;ctx.fillRect(x+tw*.005,y-th*.015,Math.max(2,tw*.075),Math.max(2,th*.06));
+  ctx.fillStyle='#efffd0';ctx.fillRect(x+tw*.025,y-th*.005,Math.max(1,tw*.025),Math.max(1,th*.025));
+ }
+ ctx.restore();
  // Bats wheel and flutter near the roof; their flight path is deliberately above the main floor.
  for(let i=0;i<4;i++){
   const speed=.16+i*.045,phase=i*1.71;
