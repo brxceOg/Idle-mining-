@@ -372,24 +372,50 @@ function drawSurfaceDetails(cw,tw,th,camera){
  }
 }
 function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
- const scale=tw/32;
+ const scale=tw/32,variant=((seed%4)+4)%4;
  ctx.save();ctx.translate(baseX,baseY);
  if(!standing){
   const eased=progress*progress*(3-2*progress);
   ctx.rotate(direction*eased*1.12);
  }
- // Trunk and stepped canopy use the same crisp, limited palette as the terrain.
- ctx.fillStyle='#70452c';ctx.fillRect(-3*scale,-th*1.55,6*scale,th*1.55);
+ // Four deterministic silhouettes keep each tree recognizable and avoid per-frame randomness.
+ ctx.fillStyle=variant===3?'#76503a':'#70452c';
+ ctx.fillRect((variant===2?-2:-3)*scale,-th*(variant===2?1.42:1.55),(variant===2?4:6)*scale,th*(variant===2?1.42:1.55));
  ctx.fillStyle='#95603a';ctx.fillRect(-1*scale,-th*1.48,2*scale,th*1.3);
- ctx.fillStyle='#3d7d43';ctx.fillRect(-10*scale,-th*1.78,20*scale,th*.46);
- ctx.fillStyle='#4d9849';ctx.fillRect(-13*scale,-th*1.48,26*scale,th*.44);
- ctx.fillStyle='#67b64e';ctx.fillRect(-9*scale,-th*1.92,18*scale,th*.43);
- ctx.fillStyle='#8dce5d';ctx.fillRect(-5*scale,-th*2.02,10*scale,th*.25);
- ctx.fillStyle='#2e693b';ctx.fillRect(-11*scale,-th*1.48,4*scale,th*.18);ctx.fillRect(7*scale,-th*1.48,4*scale,th*.18);
- ctx.fillStyle='#b0d96b';ctx.fillRect((-6+(seed%3))*scale,-th*1.84,3*scale,th*.12);
- if(!standing){
-  ctx.fillStyle='#d8b078';ctx.fillRect(-3*scale,-th*1.55,6*scale,2*scale);
+ if(variant===0){
+  // Classic layered evergreen.
+  ctx.fillStyle='#2f713d';ctx.fillRect(-8*scale,-th*1.62,16*scale,th*.22);
+  ctx.fillStyle='#3d8744';ctx.fillRect(-11*scale,-th*1.40,22*scale,th*.25);
+  ctx.fillStyle='#4d9849';ctx.fillRect(-14*scale,-th*1.16,28*scale,th*.24);
+  ctx.fillStyle='#67b64e';ctx.fillRect(-11*scale,-th*.94,22*scale,th*.22);
+  ctx.fillStyle='#8dce5d';ctx.fillRect(-6*scale,-th*1.78,12*scale,th*.18);
+ }else if(variant===1){
+  // Broad, rounded leafy canopy built from offset pixel steps.
+  ctx.fillStyle='#326f3d';ctx.fillRect(-10*scale,-th*1.64,20*scale,th*.30);
+  ctx.fillStyle='#438747';ctx.fillRect(-13*scale,-th*1.42,26*scale,th*.42);
+  ctx.fillStyle='#5aa64a';ctx.fillRect(-11*scale,-th*1.18,22*scale,th*.35);
+  ctx.fillStyle='#75bd53';ctx.fillRect(-7*scale,-th*1.50,14*scale,th*.24);
+  ctx.fillStyle='#9bd566';ctx.fillRect(-5*scale,-th*1.57,7*scale,th*.12);
+  ctx.fillStyle='#2b6337';ctx.fillRect(-12*scale,-th*1.20,4*scale,th*.13);
+ }else if(variant===2){
+  // Slim young tree, with a narrower trunk and taller, uneven crown.
+  ctx.fillStyle='#2e693b';ctx.fillRect(-6*scale,-th*1.95,12*scale,th*.25);
+  ctx.fillStyle='#3d7d43';ctx.fillRect(-9*scale,-th*1.72,18*scale,th*.30);
+  ctx.fillStyle='#58a449';ctx.fillRect(-7*scale,-th*1.46,14*scale,th*.28);
+  ctx.fillStyle='#7bc456';ctx.fillRect(-4*scale,-th*2.03,8*scale,th*.18);
+  ctx.fillStyle='#a4d96c';ctx.fillRect(-2*scale,-th*1.91,3*scale,th*.12);
+ }else{
+  // Warm olive woodland tree, wider lower boughs and muted highlights.
+  ctx.fillStyle='#596e37';ctx.fillRect(-9*scale,-th*1.70,18*scale,th*.25);
+  ctx.fillStyle='#6f8d3d';ctx.fillRect(-13*scale,-th*1.48,26*scale,th*.33);
+  ctx.fillStyle='#8ca94a';ctx.fillRect(-11*scale,-th*1.25,22*scale,th*.29);
+  ctx.fillStyle='#b0c75b';ctx.fillRect(-6*scale,-th*1.76,12*scale,th*.16);
+  ctx.fillStyle='#d2d47a';ctx.fillRect((-5+(seed%3))*scale,-th*1.61,4*scale,th*.12);
  }
+ // Tiny bark/leaf pixels add variation without leaving the established palette.
+ ctx.fillStyle='#b0d96b';ctx.fillRect((-6+(seed%3))*scale,-th*(variant===2?1.86:1.48),3*scale,th*.10);
+ ctx.fillStyle=variant===3?'#c0a06a':'#d8b078';
+ if(!standing)ctx.fillRect(-3*scale,-th*1.55,6*scale,2*scale);
  ctx.restore();
 }
 function drawWorker(x,y,w,h,mode,worker){
