@@ -139,6 +139,17 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 }
 
 
+
+/* Session 6: keep save status and compact reset action together in the top-right HUD. */
+.header-right{display:flex;align-items:center;justify-content:flex-end;gap:6px;pointer-events:auto;min-width:0}
+.header-right .reset-save-btn{
+ position:static!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;
+ width:auto!important;min-height:0!important;flex:0 0 auto;
+ padding:5px 6px!important;font-size:8px!important;line-height:1.2;white-space:nowrap;
+ border-width:1px;border-radius:5px;
+}
+.header-right .pill{white-space:nowrap;font-size:8px;padding:5px 6px}
+
 /* Session 5: unified bottom-right control dock, stacked vertically for mobile. */
 @media(max-width:759px){
  .actions{
@@ -160,17 +171,12 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
  }
  .mine-nav .nav-btn{width:100%;min-height:36px!important}
  .upgrade-btn{
-  left:auto!important;right:12px!important;
-  bottom:calc(env(safe-area-inset-bottom,0px) + 222px)!important;
-  width:min(190px,calc(100vw - 24px))!important;
+  left:12px!important;right:auto!important;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
+  width:min(150px,calc(100vw - 24px))!important;
   min-height:36px!important;
  }
- .reset-save-btn{
-  left:auto!important;right:12px!important;
-  bottom:calc(env(safe-area-inset-bottom,0px) + 274px)!important;
-  width:min(190px,calc(100vw - 24px))!important;
-  min-height:34px!important;
- }
+
 }
 @media(min-width:760px){
  .actions{
@@ -182,12 +188,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
   width:210px!important;grid-template-columns:1fr!important;
  }
  .upgrade-btn{
-  left:auto!important;right:18px!important;bottom:230px!important;
-  width:210px!important;
- }
- .reset-save-btn{
-  left:auto!important;right:18px!important;bottom:282px!important;
-  width:210px!important;
+  left:18px!important;right:auto!important;bottom:18px!important;
+  width:180px!important;
  }
 }
 
@@ -195,8 +197,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 </head>
 <body>
 <div class="app">
-<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></header>
-<button class="reset-save-btn" id="resetSaveBtn" type="button">↺ RESET SAVE</button>
+<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button">↺ RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
 <button class="upgrade-btn" id="upgradeOpen" type="button">⬆ UPGRADES</button>
 <div class="stats">
  <div class="stat"><div class="label">Cash</div><div class="value" id="cash">$0</div><div class="sub" id="runCash">$0 earned this run</div></div>
