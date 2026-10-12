@@ -249,7 +249,7 @@ function tickWorker(dt){
 }
 function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of state.workers){state.worker=worker;tickWorker(dt);}state.worker=state.workers[0]||null;}
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
-function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w)return;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
+function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w){syncWorkers();w=state.worker;}if(!w){w=createWorker(1);state.workers=[w];state.worker=w;}if(!state.terrain||!state.terrain.length)state.terrain=makeTerrain();const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
 // distant sky and hills
 ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
