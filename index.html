@@ -201,7 +201,9 @@ function tickWorker(dt){
  if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
  if(w.target&&!tileAt(w.target.x,w.target.y)){if(w.target.x!==Math.round(w.x))w.routeX=w.target.x;w.target=null;}
  if(!w.target){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
- w.tx=w.target.x;
+ // Move onto a valuable neighboring column before mining its block.
+ if(w.target.x!==Math.round(w.x)){w.routeX=w.target.x;w.mode='walk';return;}
+ w.x=w.target.x;w.tx=w.target.x;
  const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
  const tx=w.target.x,ty=w.target.y;
  w.mode='mine';w.progress+=dt;
