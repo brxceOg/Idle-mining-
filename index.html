@@ -551,9 +551,20 @@ function drawPixelSky(cw,skyBottom){
  ctx.restore();
 }
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w){syncWorkers();w=state.worker;}if(!w){w=createWorker(1);state.workers=[w];state.worker=w;}if(!state.terrain||!state.terrain.length)state.terrain=makeTerrain();const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const minCamera=Math.min(0,targetCam),maxCamera=Math.max(0,ROWS*TILE-ch);const camera=Math.max(minCamera,Math.min(maxCamera,state.cameraY+state.manualScroll));const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
-const caveView=camera>=CAVE_START*th-ch*.6;
-if(caveView){drawCaveBackdrop(cw,ch,tw,th,camera);}
-else{drawPixelSky(cw,Math.max(0,th-camera));ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));}
+const caveTop=CAVE_START*th-camera;
+const caveView=camera+ch>=CAVE_START*th;
+drawPixelSky(cw,Math.max(0,th-camera));
+ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
+// Reveal the cave backdrop as soon as its biome enters the viewport. Clip it to
+// the cave's world-space region so the plains sky remains visible above it.
+if(caveView){
+ ctx.save();
+ ctx.beginPath();
+ ctx.rect(0,Math.max(0,caveTop),cw,Math.max(0,ch-Math.max(0,caveTop)));
+ ctx.clip();
+ drawCaveBackdrop(cw,ch,tw,th,camera);
+ ctx.restore();
+}
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 drawSurfaceDetails(cw,tw,th,camera);
 drawCaveDetails(cw,tw,th,camera,startRow,endRow);
