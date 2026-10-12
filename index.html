@@ -379,24 +379,6 @@ function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
   ctx.rotate(direction*eased*1.12);
  }
  // Four deterministic silhouettes keep each tree recognizable and avoid per-frame randomness.
- // Small offset branches and foliage clumps vary by tree seed, making the silhouettes less uniform.
- const branchPattern=(Math.floor(seed*13+5)%5+5)%5;
- const branchY=[.48,.66,.83,1.02,1.20];
- const branchSide=[-1,1,1,-1,1];
- const branchLen=[.30,.24,.38,.27,.34];
- for(let b=0;b<branchY.length;b++){
-  if((b+branchPattern)%5===1&&variant!==2)continue;
-  const side=((b+branchPattern)%3===0?-1:1)*branchSide[b];
-  const y=-treeHeight*branchY[b],len=treeHeight*branchLen[(b+branchPattern)%branchLen.length];
-  ctx.fillStyle=variant===3?'#596e37':(b%2?'#326f3d':'#438747');
-  ctx.fillRect(side<0?-len*.72*scale:1*scale,y,len*.72*scale,Math.max(2*scale,treeHeight*.075));
-  ctx.fillStyle=variant===3?'#8ca94a':(b%2?'#5aa64a':'#67b64e');
-  ctx.fillRect(side<0?-len*scale:1*scale,y-treeHeight*.065,len*scale,Math.max(2*scale,treeHeight*.13));
-  if((b+branchPattern)%2===0){
-   ctx.fillStyle=variant===3?'#b0c75b':'#9bd566';
-   ctx.fillRect(side<0?-len*.48*scale:len*.34*scale,y-treeHeight*.10,len*.25*scale,Math.max(1*scale,treeHeight*.045));
-  }
- }
  ctx.fillStyle=variant===3?'#76503a':'#70452c';
  ctx.fillRect((variant===2?-2:-3)*scale,-treeHeight*(variant===2?1.42:1.55),(variant===2?4:6)*scale,treeHeight*(variant===2?1.42:1.55));
  ctx.fillStyle='#95603a';ctx.fillRect(-1*scale,-treeHeight*1.48,2*scale,treeHeight*1.3);
@@ -429,6 +411,24 @@ function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
   ctx.fillStyle='#8ca94a';ctx.fillRect(-11*scale,-treeHeight*1.25,22*scale,treeHeight*.29);
   ctx.fillStyle='#b0c75b';ctx.fillRect(-6*scale,-treeHeight*1.76,12*scale,treeHeight*.16);
   ctx.fillStyle='#d2d47a';ctx.fillRect((-5+(seed%3))*scale,-treeHeight*1.61,4*scale,treeHeight*.12);
+ }
+ // Small offset branches and foliage clumps vary by tree seed, making the silhouettes less uniform.
+ const branchPattern=(Math.floor(seed*13+5)%5+5)%5;
+ const branchY=[.48,.66,.83,1.02,1.20];
+ const branchSide=[-1,1,1,-1,1];
+ const branchLen=[.30,.24,.38,.27,.34];
+ for(let b=0;b<branchY.length;b++){
+  if((b+branchPattern)%5===1&&variant!==2)continue;
+  const side=((b+branchPattern)%3===0?-1:1)*branchSide[b];
+  const y=-treeHeight*branchY[b],len=treeHeight*branchLen[(b+branchPattern)%branchLen.length];
+  ctx.fillStyle=variant===3?'#596e37':(b%2?'#326f3d':'#438747');
+  ctx.fillRect(side<0?-len*.72*scale:1*scale,y,len*.72*scale,Math.max(2*scale,treeHeight*.075));
+  ctx.fillStyle=variant===3?'#8ca94a':(b%2?'#5aa64a':'#67b64e');
+  ctx.fillRect(side<0?-len*scale:1*scale,y-treeHeight*.065,len*scale,Math.max(2*scale,treeHeight*.13));
+  if((b+branchPattern)%2===0){
+   ctx.fillStyle=variant===3?'#b0c75b':'#9bd566';
+   ctx.fillRect(side<0?-len*.48*scale:len*.34*scale,y-treeHeight*.10,len*.25*scale,Math.max(1*scale,treeHeight*.045));
+  }
  }
  // Tiny bark/leaf pixels add variation without leaving the established palette.
  ctx.fillStyle='#b0d96b';ctx.fillRect((-6+(seed%3))*scale,-treeHeight*(variant===2?1.86:1.48),3*scale,treeHeight*.10);
