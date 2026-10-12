@@ -257,7 +257,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 </div>
 <div class="layout">
  <section class="panel">
-  <div class="world-head"><span class="mine-title"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-pickaxe"></use></svg> PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
+  <div class="world-head"><span class="mine-title"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-pickaxe"></use></svg> <span id="biomeTitle">PLAINS MINE</span></span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
   <canvas id="world" aria-label="Pixel-art mining world"></canvas>
   <div class="mine-nav" aria-label="Mine map navigation"><button class="nav-btn" id="scrollUp" type="button" aria-label="Scroll mine upward">▲</button><button class="nav-btn" id="scrollDown" type="button" aria-label="Scroll mine downward">▼</button></div>
   <div class="world-head"><span>Use the controls to explore vertically.</span><span id="tileReadout">32px tiles</span></div>
@@ -274,7 +274,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 <script>
 (()=> {
 'use strict';
-const TILE=32, COLS=28, ROWS=100, SAVE_KEY='idleMiningPhase1Save';
+const TILE=32, COLS=28, ROWS=200, CAVE_START=100, SAVE_KEY='idleMiningPhase1Save';
 const mats={
  air:{solid:false,hp:0,value:0,color:'#000'},
  grass:{solid:true,hp:3,value:0,color:'#68a84c'},
@@ -284,11 +284,13 @@ const mats={
  copper:{solid:true,hp:19,value:6,color:'#c47c4c'},
  iron:{solid:true,hp:26,value:12,color:'#a8aaa0'},
  silver:{solid:true,hp:39,value:25,color:'#d4ded8'},
- gold:{solid:true,hp:51,value:50,color:'#f3c64c'}
+ gold:{solid:true,hp:51,value:50,color:'#f3c64c'},
+ caveRock:{solid:true,hp:18,value:2,color:'#454b62'},
+ crystal:{solid:true,hp:32,value:18,color:'#65c9d2'}
 };
 const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-let state={cash:0,bestDepth:0,lifetime:0,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
+let state={cash:0,bestDepth:0,lifetime:0,checkpoint:'plains',upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
 let upgradeView='upgrades';
 // Surface trees are lightweight scenery; placements are deterministic so the world feels natural without flicker.
 // Small clusters alternate with isolated trees and intentionally open stretches of grass.
@@ -305,19 +307,36 @@ function surfaceTreeColumns(){
 const TREE_COLUMNS=surfaceTreeColumns();
 function isTreeColumn(x){return TREE_COLUMNS.includes(x);}
 let treeFalls=[];
-function createWorker(id){return {id,type:'standard',x:COLS/2,y:.15,tx:COLS/2,ty:.15,mode:'wander',target:null,routeX:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
+function checkpointRow(){return state.checkpoint==='cave'?CAVE_START:0;}
+function createWorker(id){const y=checkpointRow()+.15;return {id,type:'standard',x:COLS/2,y,tx:COLS/2,ty:y,mode:'wander',target:null,routeX:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
 function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;const n=state.workers.length;state.workers.forEach((w,i)=>{w.homeX=state.groupedMode?Math.max(2,Math.min(COLS-3,COLS/2+(i-(n-1)/2)*1.2)):(n===1?COLS/2:2+(i*(COLS-5)/(n-1)));if(!state.active&&w.mode==='wander')w.x=w.homeX;});state.worker=state.workers[0]||null;}
 let lastTick=performance.now(),lastRender=0,logItems=[];
 function note(s){logItems.unshift(s);logItems=logItems.slice(0,8);$('log').innerHTML=logItems.map(t=>'<div>'+escapeHtml(t)+'</div>').join('');}
 function escapeHtml(s){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function rand(a,b){return a+Math.random()*(b-a);}
-function makeTerrain(){const t=Array.from({length:ROWS},()=>Array(COLS).fill(null));for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){let type='air';if(y===1)type='grass';else if(y>=2){if(y<8)type='dirt';else if(y<22)type=Math.random()<.78?'dirt':'stone';else type=Math.random()<Math.min(.88,.35+(y-22)*.009)?'stone':'dirt';
-const oreChance=Math.min(.22,.018+y*.0014);if(y>5&&Math.random()<oreChance){const r=Math.random();type=r<.48?'coal':r<.75?'copper':r<.91?'iron':r<.975?'silver':'gold';}
-if(y>12&&y<ROWS-2&&Math.random()<.035){const ore=['coal','copper','iron'][Math.floor(Math.random()*3)];for(let oy=0;oy<2;oy++)for(let ox=0;ox<2;ox++)if(x+ox<COLS&&Math.random()<.7)t[y+oy][x+ox]=makeTile(ore,x+ox,y+oy);}
-}if(type!=='air')t[y][x]=makeTile(type,x,y);}
-return t;}
+function makeTerrain(){
+ const t=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+ for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
+  if(y===CAVE_START)continue; // Open drop into the Cave checkpoint.
+  let type='air';
+  if(y===1)type='grass';
+  else if(y>=2&&y<CAVE_START){
+   if(y<8)type='dirt';else if(y<22)type=Math.random()<.78?'dirt':'stone';else type=Math.random()<Math.min(.88,.35+(y-22)*.009)?'stone':'dirt';
+   const oreChance=Math.min(.22,.018+y*.0014);
+   if(y>5&&Math.random()<oreChance){const r=Math.random();type=r<.48?'coal':r<.75?'copper':r<.91?'iron':r<.975?'silver':'gold';}
+   if(y>12&&y<CAVE_START-2&&Math.random()<.035){const ore=['coal','copper','iron'][Math.floor(Math.random()*3)];for(let oy=0;oy<2;oy++)for(let ox=0;ox<2;ox++)if(y+oy<CAVE_START&&x+ox<COLS&&Math.random()<.7)t[y+oy][x+ox]=makeTile(ore,x+ox,y+oy);}
+  }else if(y>CAVE_START){
+   type=Math.random()<.78?'caveRock':'dirt';
+   const oreChance=Math.min(.24,.07+(y-CAVE_START)*.0015);
+   if(Math.random()<oreChance){const r=Math.random();type=r<.34?'coal':r<.56?'copper':r<.73?'iron':r<.88?'gold':'crystal';}
+   if(y>CAVE_START+4&&y<ROWS-2&&Math.random()<.045){const ore=Math.random()<.55?'crystal':'gold';for(let oy=0;oy<2;oy++)for(let ox=0;ox<2;ox++)if(y+oy<ROWS&&x+ox<COLS&&Math.random()<.7)t[y+oy][x+ox]=makeTile(ore,x+ox,y+oy);}
+  }
+  if(type!=='air')t[y][x]=makeTile(type,x,y);
+ }
+ return t;
+}
 function makeTile(type,x,y){return {type,x,y,hp:mats[type].hp,maxHp:mats[type].hp,solid:true,seed:Math.random()};}
-function resetRunTerrain(){state.terrain=makeTerrain();treeFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();state.cameraY=0;state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;note('Terrain restored. Your cash and permanent records are safe.');save();}
+function resetRunTerrain(message='Terrain restored. Your cash and permanent records are safe.'){state.terrain=makeTerrain();treeFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();state.cameraY=Math.max(0,checkpointRow()*TILE-canvas.clientHeight*.42);state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(message);save();}
 function solid(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return true;return !!state.terrain[y][x];}
 function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terrain[y][x];}
 const upgradeDefs={
@@ -418,7 +437,18 @@ function chooseTarget(){
 }
 function tickWorker(dt){
  const w=state.worker;if(!w)return;
- if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';const home=w.homeX==null?COLS/2:w.homeX;const wanderRange=state.groupedMode?0.55:1.65;w.x=Math.max(1,Math.min(COLS-2,home+Math.sin(performance.now()/1500+w.id*2.37)*wanderRange));w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
+ if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';const home=w.homeX==null?COLS/2:w.homeX;const wanderRange=state.groupedMode?0.55:1.65;w.x=Math.max(1,Math.min(COLS-2,home+Math.sin(performance.now()/1500+w.id*2.37)*wanderRange));w.y=checkpointRow()+.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
+ if(state.checkpoint==='plains'&&w.y>=CAVE_START){
+  state.checkpoint='cave';
+  resetRunTerrain('Cave discovered! Mining stopped automatically, and the Cave checkpoint is now permanent. Future runs will begin at the Cave entrance.');
+  $('biomeTitle').textContent='CAVE BIOME';
+  save();
+  return;
+ }
+ if(state.checkpoint==='cave'&&w.y>=ROWS-2){
+  resetRunTerrain('Cave depth reached. Your run has stopped safely, and your cash and Cave checkpoint are preserved.');
+  return;
+ }
  if(w.routeX!==null&&w.routeX!==undefined){const dx=w.routeX-w.x;if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*1.8);return;}w.x=w.routeX;w.tx=w.routeX;w.routeX=null;}
  if(w.mode==='approach'){
   const dx=w.startX-w.x;
@@ -515,14 +545,14 @@ function drawPixelSky(cw,skyBottom){
  ctx.restore();
 }
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w){syncWorkers();w=state.worker;}if(!w){w=createWorker(1);state.workers=[w];state.worker=w;}if(!state.terrain||!state.terrain.length)state.terrain=makeTerrain();const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const minCamera=Math.min(0,targetCam),maxCamera=Math.max(0,ROWS*TILE-ch);const camera=Math.max(minCamera,Math.min(maxCamera,state.cameraY+state.manualScroll));const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
-drawPixelSky(cw,Math.max(0,th-camera));
-// Keep the existing distant green land beneath the sky.
-ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
+const caveView=camera>=CAVE_START*th-ch*.18;
+if(caveView){ctx.fillStyle='#171b2b';ctx.fillRect(0,0,cw,ch);for(let x=0;x<cw;x+=tw){const hash=(Math.floor(x/tw)*37+11)%7;ctx.fillStyle=hash%2?'#22283a':'#1d2334';ctx.fillRect(x,0,tw,Math.min(ch,th*(1+hash%3)));ctx.fillStyle='#30354a';ctx.fillRect(x+tw*.25,Math.max(0,ch-th*(1+hash%4)),Math.max(2,tw*.5),th);}}
+else{drawPixelSky(cw,Math.max(0,th-camera));ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));}
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 drawSurfaceDetails(cw,tw,th,camera);
 for(const worker of state.workers){drawWorker((cw-COLS*tw)/2+worker.x*tw,(worker.y*th-camera),tw,th,worker.mode,worker);if(worker.target){const px=(cw-COLS*tw)/2+worker.target.x*tw,py=worker.target.y*th-camera;ctx.strokeStyle=worker.id===1?'#ffe17c':'#b8edff';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}}
-const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
-function drawTile(t,x,y,w,h){const m=mats[t.type];ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,y+h-3,w,3);ctx.strokeStyle='rgba(28,28,20,.3)';ctx.strokeRect(x+.5,y+.5,w-1,h-1);const r=(t.seed||.4);if(t.type==='grass'){ctx.fillStyle='#a6d96a';ctx.fillRect(x,y,w,Math.max(3,h*.17));for(let i=0;i<4;i++){ctx.fillStyle=i%2?'#477e3e':'#d1e67d';ctx.fillRect(x+((i*7+3)%Math.max(4,w-2)),y+1,2,2);}}else if(t.type==='dirt'){ctx.fillStyle='#bb8150';ctx.fillRect(x+w*.2,y+h*.25,3,2);ctx.fillRect(x+w*.68,y+h*.65,2,3);ctx.fillStyle='#77472f';ctx.fillRect(x+w*.48,y+h*.42,3,2);}else if(t.type==='stone'){ctx.fillStyle='#aab0a0';ctx.fillRect(x+w*.2,y+h*.23,w*.3,2);ctx.fillStyle='#555e58';ctx.fillRect(x+w*.58,y+h*.63,w*.22,2);}else{ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle=t.type==='coal'?'#171e1b':t.type==='copper'?'#f3ad68':t.type==='iron'?'#d4d8cb':t.type==='silver'?'#f1f7ee':'#fff09a';ctx.fillRect(x+w*.22,y+h*.2,w*.22,h*.18);ctx.fillRect(x+w*.48,y+h*.42,w*.25,h*.25);ctx.fillRect(x+w*.18,y+h*.62,w*.16,h*.12);}
+const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
+function drawTile(t,x,y,w,h){const m=mats[t.type];ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,y+h-3,w,3);ctx.strokeStyle='rgba(28,28,20,.3)';ctx.strokeRect(x+.5,y+.5,w-1,h-1);const r=(t.seed||.4);if(t.type==='caveRock'){ctx.fillStyle='#626a85';ctx.fillRect(x+w*.16,y+h*.2,w*.35,Math.max(2,h*.08));ctx.fillStyle='#30364a';ctx.fillRect(x+w*.55,y+h*.62,w*.28,Math.max(2,h*.1));ctx.fillStyle='#828aa1';ctx.fillRect(x+w*.2,y+h*.72,w*.16,Math.max(1,h*.06));}else if(t.type==='crystal'){ctx.fillStyle='#a6f5ef';ctx.fillRect(x+w*.22,y+h*.18,w*.18,h*.45);ctx.fillStyle='#4c9fae';ctx.fillRect(x+w*.42,y+h*.3,w*.2,h*.48);ctx.fillStyle='#d8fffb';ctx.fillRect(x+w*.24,y+h*.2,w*.06,h*.25);ctx.fillStyle='#367887';ctx.fillRect(x+w*.61,y+h*.55,w*.12,h*.18);}else if(t.type==='grass'){ctx.fillStyle='#a6d96a';ctx.fillRect(x,y,w,Math.max(3,h*.17));for(let i=0;i<4;i++){ctx.fillStyle=i%2?'#477e3e':'#d1e67d';ctx.fillRect(x+((i*7+3)%Math.max(4,w-2)),y+1,2,2);}}else if(t.type==='dirt'){ctx.fillStyle='#bb8150';ctx.fillRect(x+w*.2,y+h*.25,3,2);ctx.fillRect(x+w*.68,y+h*.65,2,3);ctx.fillStyle='#77472f';ctx.fillRect(x+w*.48,y+h*.42,3,2);}else if(t.type==='stone'){ctx.fillStyle='#aab0a0';ctx.fillRect(x+w*.2,y+h*.23,w*.3,2);ctx.fillStyle='#555e58';ctx.fillRect(x+w*.58,y+h*.63,w*.22,2);}else{ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle=t.type==='coal'?'#171e1b':t.type==='copper'?'#f3ad68':t.type==='iron'?'#d4d8cb':t.type==='silver'?'#f1f7ee':'#fff09a';ctx.fillRect(x+w*.22,y+h*.2,w*.22,h*.18);ctx.fillRect(x+w*.48,y+h*.42,w*.25,h*.25);ctx.fillRect(x+w*.18,y+h*.62,w*.16,h*.12);}
 if(t.hp<t.maxHp){const damage=1-t.hp/t.maxHp;ctx.strokeStyle='rgba(27,20,16,'+(0.35+damage*.5)+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+w*.2,y+h*.2);ctx.lineTo(x+w*.48,y+h*.48);if(damage>.25){ctx.lineTo(x+w*.38,y+h*.7);ctx.moveTo(x+w*.48,y+h*.48);ctx.lineTo(x+w*.78,y+h*.3);}if(damage>.6){ctx.moveTo(x+w*.48,y+h*.48);ctx.lineTo(x+w*.65,y+h*.82);}ctx.stroke();}}
 function drawSurfaceDetails(cw,tw,th,camera){
  const surfaceY=th-camera;
@@ -696,13 +726,13 @@ function drawWorker(x,y,w,h,mode,worker){
  else{ctx.fillStyle='#d7c39a';ctx.fillRect(24*s,15*s,2*s,10*s);}
  ctx.restore();
 }
-function save(){try{const data={cash:state.cash,bestDepth:state.bestDepth,lifetime:state.lifetime,upgrades:state.upgrades,workerCount:state.workerCount,groupedMode:state.groupedMode,lastSave:Date.now()};localStorage.setItem(SAVE_KEY,JSON.stringify(data));$('saveStatus').textContent='● SAVED';}catch(e){$('saveStatus').textContent='● SAVE UNAVAILABLE';}}
-function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');state.cash=Math.max(0,Number(d.cash)||0);state.bestDepth=Math.max(0,Number(d.bestDepth)||0);state.lifetime=Math.max(0,Number(d.lifetime)||0);if(d.upgrades&&typeof d.upgrades==='object')for(const key of Object.keys(state.upgrades))state.upgrades[key]=Math.max(0,Math.min(upgradeDefs[key].max,Math.floor(Number(d.upgrades[key])||0)));state.workerCount=Math.max(1,Math.min(24,Math.floor(Number(d.workerCount)||1)));state.groupedMode=!!d.groupedMode;syncWorkers();}catch(e){state.workerCount=1;syncWorkers();}}
-$('startBtn').addEventListener('click',()=>{if(state.active)return;state.active=true;state.runStart=Date.now();state.runCash=0;const columns=[];for(let x=2;x<COLS-2;x++)columns.push(x);for(let i=columns.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[columns[i],columns[j]]=[columns[j],columns[i]];}state.workers.forEach((worker,i)=>{worker.y=0.15;worker.target=null;worker.routeX=null;worker.progress=0;worker.mode='approach';if(state.groupedMode){const clusterStart=Math.max(2,Math.min(COLS-2-state.workers.length,Math.floor(COLS/2)-Math.floor(state.workers.length/2)));worker.startX=clusterStart+i;}else worker.startX=columns[i%columns.length];});state.worker=state.workers[0];$('runState').textContent='● MINING';$('runState').className='live';$('startBtn').disabled=true;$('stopBtn').disabled=false;note('Mining started. Your worker is heading underground.');save();});
+function save(){try{const data={cash:state.cash,bestDepth:state.bestDepth,lifetime:state.lifetime,checkpoint:state.checkpoint,upgrades:state.upgrades,workerCount:state.workerCount,groupedMode:state.groupedMode,lastSave:Date.now()};localStorage.setItem(SAVE_KEY,JSON.stringify(data));$('saveStatus').textContent='● SAVED';}catch(e){$('saveStatus').textContent='● SAVE UNAVAILABLE';}}
+function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');state.cash=Math.max(0,Number(d.cash)||0);state.bestDepth=Math.max(0,Number(d.bestDepth)||0);state.lifetime=Math.max(0,Number(d.lifetime)||0);state.checkpoint=d.checkpoint==='cave'?'cave':'plains';if(d.upgrades&&typeof d.upgrades==='object')for(const key of Object.keys(state.upgrades))state.upgrades[key]=Math.max(0,Math.min(upgradeDefs[key].max,Math.floor(Number(d.upgrades[key])||0)));state.workerCount=Math.max(1,Math.min(24,Math.floor(Number(d.workerCount)||1)));state.groupedMode=!!d.groupedMode;syncWorkers();}catch(e){state.workerCount=1;syncWorkers();}}
+$('startBtn').addEventListener('click',()=>{if(state.active)return;state.active=true;state.runStart=Date.now();state.runCash=0;const columns=[];for(let x=2;x<COLS-2;x++)columns.push(x);for(let i=columns.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[columns[i],columns[j]]=[columns[j],columns[i]];}state.workers.forEach((worker,i)=>{worker.y=checkpointRow()+.15;worker.target=null;worker.routeX=null;worker.progress=0;worker.mode='approach';if(state.groupedMode){const clusterStart=Math.max(2,Math.min(COLS-2-state.workers.length,Math.floor(COLS/2)-Math.floor(state.workers.length/2)));worker.startX=clusterStart+i;}else worker.startX=columns[i%columns.length];});state.worker=state.workers[0];$('runState').textContent='● MINING';$('runState').className='live';$('startBtn').disabled=true;$('stopBtn').disabled=false;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(state.checkpoint==='cave'?'Cave run started. Your crew is mining from the permanent Cave checkpoint.':'Mining started. Your worker is heading underground.');save();});
 $('stopBtn').addEventListener('click',()=>{if(!state.active)return;if(confirm('Stop this run and restore the excavated terrain? Your cash and best depth will be kept.'))resetRunTerrain();});
 function scrollMine(direction){const minCamera=Math.min(0,state.cameraY),maxCamera=Math.max(0,ROWS*TILE-canvas.clientHeight);const currentCamera=Math.max(minCamera,Math.min(maxCamera,state.cameraY+state.manualScroll));const nextCamera=Math.max(minCamera,Math.min(maxCamera,currentCamera+direction*TILE*4));state.manualScroll=nextCamera-state.cameraY;draw();}
 $('scrollUp').addEventListener('click',()=>scrollMine(-1));$('scrollDown').addEventListener('click',()=>scrollMine(1));
-function resetSave(){if(!confirm('Reset ALL saved progress? This permanently clears your cash, best depth, lifetime earnings, and upgrades. This cannot be undone.'))return;try{localStorage.removeItem(SAVE_KEY);}catch(e){}state.cash=0;state.bestDepth=0;state.lifetime=0;for(const key of Object.keys(state.upgrades))state.upgrades[key]=0;state.workerCount=1;state.groupedMode=false;state.workers=[createWorker(1)];syncWorkers();state.runCash=0;state.active=false;state.runStart=0;state.terrain=makeTerrain();state.cameraY=0;state.manualScroll=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;renderUpgrades();draw();note('Save reset. Starting fresh with zero cash and no upgrades.');save();}
+function resetSave(){if(!confirm('Reset ALL saved progress? This permanently clears your cash, best depth, lifetime earnings, and upgrades. This cannot be undone.'))return;try{localStorage.removeItem(SAVE_KEY);}catch(e){}state.cash=0;state.bestDepth=0;state.lifetime=0;state.checkpoint='plains';for(const key of Object.keys(state.upgrades))state.upgrades[key]=0;state.workerCount=1;state.groupedMode=false;state.workers=[createWorker(1)];syncWorkers();state.runCash=0;state.active=false;state.runStart=0;state.terrain=makeTerrain();state.cameraY=0;state.manualScroll=0;state.runId++;$('biomeTitle').textContent='PLAINS MINE';$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;renderUpgrades();draw();note('Save reset. Starting fresh with zero cash and no upgrades.');save();}
 $('resetSaveBtn').addEventListener('click',resetSave);
 $('upgradeOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='upgrades';renderUpgrades();});$('workersOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='workers';renderUpgrades();});$('upgradeClose').addEventListener('click',()=>$('upgradeOverlay').classList.remove('open'));$('upgradeOverlay').addEventListener('click',e=>{if(e.target===$('upgradeOverlay'))$('upgradeOverlay').classList.remove('open');});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('upgradeOverlay').classList.remove('open');});
 // Mine navigation is button-only on mobile and desktop. Dragging, swiping, and wheel input do not move the mine view.
