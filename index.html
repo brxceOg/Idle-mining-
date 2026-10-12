@@ -102,7 +102,7 @@ const mats={
 };
 const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-let state={cash:0,bestDepth:0,lifetime:0,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0,movementSpeed:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
+let state={cash:0,bestDepth:0,lifetime:0,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
 let upgradeView='upgrades';
 function createWorker(id){return {id,type:'standard',x:COLS/2,y:.15,tx:COLS/2,ty:.15,mode:'wander',target:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
 function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;const n=state.workers.length;state.workers.forEach((w,i)=>{w.homeX=state.groupedMode?Math.max(2,Math.min(COLS-3,COLS/2+(i-(n-1)/2)*1.2)):(n===1?COLS/2:2+(i*(COLS-5)/(n-1)));if(!state.active&&w.mode==='wander')w.x=w.homeX;});state.worker=state.workers[0]||null;}
@@ -123,7 +123,6 @@ const upgradeDefs={
  miningPower:{name:'Mining Power',icon:'⚒',description:'Deal more damage with every pickaxe hit, breaking tough blocks faster.',base:25,growth:1.8,effect:l=>'+'+l+' damage per hit',max:10},
  swingSpeed:{name:'Swing Speed',icon:'⚡',description:'Swing more often so every block takes less time to break.',base:35,growth:1.85,effect:l=>Math.round((1-Math.max(.35,Math.pow(.88,l)))*100)+'% faster swings',max:10},
  resourceDetection:{name:'Resource Detection',icon:'◇',description:'Scan deeper into the generated mine and start in a column with better expected ore value.',base:60,growth:2,effect:l=>'Scans '+(6+l*5)+' rows for ore value',max:8},
- movementSpeed:{name:'Movement Speed',icon:'➜',description:'Walk faster to the selected starting column before digging begins.',base:20,growth:1.75,effect:l=>'+'+(l*.45).toFixed(2)+' tiles/sec on approach',max:8}
 };
 function upgradeCost(key){const d=upgradeDefs[key];return Math.floor(d.base*Math.pow(d.growth,state.upgrades[key]||0));}
 function renderUpgrades(){
@@ -176,7 +175,7 @@ function tickWorker(dt){
  if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';const home=w.homeX==null?COLS/2:w.homeX;const wanderRange=state.groupedMode?0.55:1.65;w.x=Math.max(1,Math.min(COLS-2,home+Math.sin(performance.now()/1500+w.id*2.37)*wanderRange));w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
  if(w.mode==='approach'){
   const dx=w.startX-w.x;
-  if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(1.8+(state.upgrades.movementSpeed||0)*.45));return;}
+  if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*1.8);return;}
   w.x=w.startX;w.mode='mine';
  }
  if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
@@ -325,7 +324,7 @@ function tickWorker(dt){
  if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+(w.id-1)*.8+Math.sin(performance.now()/1500+w.id)*.25;w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
  if(w.mode==='approach'){
   const dx=w.startX-w.x;
-  if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(1.8+(state.upgrades.movementSpeed||0)*.45));return;}
+  if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*1.8);return;}
   w.x=w.startX;w.mode='mine';
  }
  if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
