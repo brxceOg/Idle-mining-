@@ -372,7 +372,7 @@ function drawSurfaceDetails(cw,tw,th,camera){
  }
 }
 function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
- const size=[.72,.88,1,1.18][(Math.floor(seed*7+3)%4+4)%4],scale=tw/32*size,treeHeight=treeHeight*size,variant=(Math.floor(seed/2)%4+4)%4;
+ const size=[.72,.88,1,1.18][(Math.floor(seed*7+3)%4+4)%4],scale=tw/32*size,treeHeight=th*size,variant=(Math.floor(seed/2)%4+4)%4;
  ctx.save();ctx.translate(baseX,baseY);
  if(!standing){
   const eased=progress*progress*(3-2*progress);
