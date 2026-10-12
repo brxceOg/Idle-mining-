@@ -102,13 +102,27 @@ function makeTile(type,x,y){return {type,x,y,hp:mats[type].hp,maxHp:mats[type].h
 function resetRunTerrain(){state.terrain=makeTerrain();state.worker={x:COLS/2,y:0.15,tx:COLS/2,ty:0.15,mode:'wander',target:null,progress:0,walk:0};state.cameraY=0;state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;note('Terrain restored. Your cash and permanent records are safe.');save();}
 function solid(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return true;return !!state.terrain[y][x];}
 function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terrain[y][x];}
-function reachableTargets(){const w=state.worker,baseX=Math.floor(w.x),baseY=Math.floor(w.y);let out=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(Math.abs(dx)+Math.abs(dy)!==1)continue;let x=baseX+dx,y=baseY+dy,t=tileAt(x,y);if(t&&t.type!=='grass')out.push({x,y,t,score:Math.abs(dx)+Math.abs(dy)+Math.random()*.1});}return out;}
-function chooseTarget(){const w=state.worker;let options=reachableTargets();if(!options.length){ // If standing in a shaft, look for adjacent solid blocks. If boxed in, try digging the block below.
-const below=tileAt(Math.floor(w.x),Math.floor(w.y)+1);if(below)options.push({x:Math.floor(w.x),y:Math.floor(w.y)+1,t:below,score:0});
+function reachableTargets(){
+ const w=state.worker;
+ // A worker mines from the top of a tile, never from its side.
+ // x is the left edge of the worker's grid cell, so matching the
+ // target column keeps the worker sprite centered above the block.
+ const x=Math.floor(w.x+0.0001);
+ const y=Math.floor(w.y)+1;
+ const t=tileAt(x,y);
+ if(!t)return [];
+ return [{x,y,t,score:0}];
 }
-if(!options.length){w.mode='stuck';return null;}
-options.sort((a,b)=>{const value=mats[b.t.type].value-mats[a.t.type].value;return value*.02+(a.y-b.y)*.025+(a.score-b.score);});
-return options[0];}
+function chooseTarget(){
+ const w=state.worker;
+ // Only select the tile directly beneath the worker. This makes the
+ // miner stand centered on its upper edge before every mining cycle.
+ const x=Math.floor(w.x+0.0001);
+ const y=Math.floor(w.y)+1;
+ const t=tileAt(x,y);
+ if(!t){w.mode='stuck';return null;}
+ return {x,y,t,score:0};
+}
 function tick(dt){const w=state.worker;if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+Math.sin(performance.now()/1500)*1.8;w.y=0.15+Math.abs(Math.sin(performance.now()/800))*.05;return;}
 // Walk across the surface to the chosen starting column before mining.
 if(w.mode==='approach'){
