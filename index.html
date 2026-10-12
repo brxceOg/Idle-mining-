@@ -559,6 +559,7 @@ drawSurfaceDetails(cw,tw,th,camera);
 drawCaveDetails(cw,tw,th,camera,startRow,endRow);
 if(caveView)drawCaveLife(cw,tw,th,camera);
 for(const worker of state.workers){drawWorker((cw-COLS*tw)/2+worker.x*tw,(worker.y*th-camera),tw,th,worker.mode,worker);if(worker.target){const px=(cw-COLS*tw)/2+worker.target.x*tw,py=worker.target.y*th-camera;ctx.strokeStyle=worker.id===1?'#ffe17c':'#b8edff';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}}
+if(caveView)drawCaveBats(cw,tw,th,camera);
 const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
 
 function caveHash(x,y,seed=0){
@@ -662,32 +663,8 @@ function drawCaveLife(cw,tw,th,camera){
   ctx.fillStyle='#efffd0';ctx.fillRect(x+tw*.025,y-th*.005,Math.max(1,tw*.025),Math.max(1,th*.025));
  }
  ctx.restore();
- // A small, easy-to-spot colony rests near the roof. They stay in the upper
- // cavern instead of repeatedly sweeping across the whole screen.
- for(let i=0;i<3;i++){
-  const phase=i*2.15,homeX=cw*(.34+i*.16);
-  const flutterCycle=(now*.22+phase)%(Math.PI*2);
-  const flying=Math.sin(flutterCycle)>.93;
-  const shortFlight=flying?Math.sin(now*2.4+phase)*tw*.42:0;
-  const x=homeX+shortFlight;
-  const y=th*(.64+(i%2)*.36)+Math.sin(now*.75+phase)*th*.035-(flying?th*.12:0);
-  const flap=flying?Math.sin(now*13+phase)*th*.14:th*.025;
-  ctx.save();ctx.translate(Math.round(x),Math.round(y));
-  // Broad pixel wings and a clearly defined body make the silhouette readable
-  // against the lighter mineral reflections, even on a small phone screen.
-  ctx.fillStyle='#090e19';
-  ctx.fillRect(-tw*.075,-th*.025,tw*.15,th*.12);
-  ctx.fillRect(-tw*.14,-th*.01,tw*.28,th*.055);
-  ctx.fillRect(-tw*.23,-th*.035,tw*.12,th*.065);
-  ctx.fillRect(tw*.11,-th*.035,tw*.12,th*.065);
-  ctx.fillRect(-tw*.22,-th*.035,tw*.09,-Math.abs(flap));
-  ctx.fillRect(tw*.13,-th*.035,tw*.09,Math.abs(flap));
-  ctx.fillStyle='#53657e';
-  ctx.fillRect(-tw*.035,-th*.005,tw*.07,th*.075);
-  ctx.fillStyle='#c8f6d7';
-  ctx.fillRect(-tw*.035,th*.005,Math.max(1,tw*.025),Math.max(1,th*.025));
-  ctx.restore();
- }
+ // Bats are drawn in a dedicated foreground pass so the scenery can't cover them.
+
  // Tiny segmented cave beetles crawl along the safe outer ledges and rock walls.
  for(let i=0;i<7;i++){
   const side=i%2===0?0:1,wallX=side===0?offset+tw*.65:offset+(COLS-.65)*tw;
@@ -721,6 +698,37 @@ function drawCaveLife(cw,tw,th,camera){
   if(y<stagingTop||y>stagingBottom)continue;
   ctx.fillStyle=i%4===0?'rgba(133,245,226,.75)':'rgba(173,200,218,.42)';
   ctx.fillRect(x,y,Math.max(1,tw*.035),Math.max(1,th*.035));
+ }
+}
+
+
+function drawCaveBats(cw,tw,th,camera){
+ const now=performance.now()/1000;
+ const roofY=CAVE_START*th-camera;
+ const minY=th*1.05,maxY=Math.max(th*1.25,canvas.clientHeight-th*1.1);
+ for(let i=0;i<3;i++){
+  const phase=i*2.15,homeX=cw*(.31+i*.19);
+  const flutterCycle=(now*.22+phase)%(Math.PI*2);
+  const flying=Math.sin(flutterCycle)>.93;
+  const shortFlight=flying?Math.sin(now*2.4+phase)*tw*.45:0;
+  const desiredY=roofY+th*(1.75+(i%2)*.55);
+  const y=Math.max(minY,Math.min(maxY,desiredY))+Math.sin(now*.75+phase)*th*.035;
+  const x=homeX+shortFlight;
+  const flap=flying?Math.sin(now*13+phase)*th*.20:th*.045;
+  ctx.save();ctx.translate(Math.round(x),Math.round(y));ctx.scale(1.65,1.65);
+  // Bold, high-contrast pixel silhouettes sized to remain readable on mobile.
+  ctx.fillStyle='#080c16';
+  ctx.fillRect(-tw*.10,-th*.035,tw*.20,th*.15);
+  ctx.fillRect(-tw*.19,-th*.015,tw*.38,th*.075);
+  ctx.fillRect(-tw*.31,-th*.045,tw*.16,th*.085);
+  ctx.fillRect(tw*.15,-th*.045,tw*.16,th*.085);
+  ctx.fillRect(-tw*.29,-th*.045,tw*.12,-Math.abs(flap));
+  ctx.fillRect(tw*.17,-th*.045,tw*.12,Math.abs(flap));
+  ctx.fillStyle='#65768c';
+  ctx.fillRect(-tw*.045,-th*.005,tw*.09,th*.095);
+  ctx.fillStyle='#d5ffe1';
+  ctx.fillRect(-tw*.055,th*.018,Math.max(2,tw*.035),Math.max(2,th*.035));
+  ctx.restore();
  }
 }
 
