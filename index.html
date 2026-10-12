@@ -204,7 +204,14 @@ function chooseTarget(){
  }
  if(bestX!==x){
   const stepX=x+Math.sign(bestX-x),stepTile=tileAt(stepX,y);
-  if(stepTile)return {x:stepX,y,t:stepTile,score:bestScore,routeAfter:true};
+  if(stepTile){
+   // Apply the same entry check to long-range targets in either direction:
+   // if the neighboring column is blocked at body height, mine that blocker first.
+   const entryY=Math.floor(w.y),entryTile=tileAt(stepX,entryY);
+   if(entryTile)return {x:stepX,y:entryY,t:entryTile,score:bestScore,routeAfter:true,sideEntry:true};
+   // The side is open, so move into the column before mining its lower tile.
+   return {x:stepX,y,t:stepTile,score:bestScore,routeAfter:false,sideEntry:false};
+  }
  }
  return {x,y,t:direct,score:currentScore};
 }
