@@ -325,10 +325,10 @@ function makeTerrain(){
  const t=Array.from({length:ROWS},()=>Array(COLS).fill(null));
  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){
   let type='air';
-  // The Cave entrance is a real walkable room: a stone overhang with a central drop shaft,
-  // open floor space for the crew, solid side walls, and a continuous stone floor.
+  // The Cave entrance has a stone overhang and continuous floor, but no solid
+  // side-wall columns at the screen edges so workers can move freely across the room.
   if(y===CAVE_START){type=(x>=12&&x<=15)?'air':'caveRock';}
-  else if(y>CAVE_START&&y<CAVE_START+5){type=(x<=1||x>=COLS-2)?'caveRock':'air';}
+  else if(y>CAVE_START&&y<CAVE_START+5){type='air';}
   else if(y===CAVE_START+5){type='caveRock';}
   else if(y===1)type='grass';
   else if(y>=2&&y<CAVE_START){
