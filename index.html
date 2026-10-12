@@ -256,6 +256,22 @@ function drawPixelSky(cw,skyBottom){
  if(!skyH)return;
  ctx.save();
  ctx.beginPath();ctx.rect(0,0,cw,skyH);ctx.clip();
+ // Distant rolling hills sit at the horizon in chunky pixel steps; terrain is still drawn over them later.
+ if(skyH>24){
+  const cell=16;
+  const hills=[
+   {base:skyH-2,height:Math.min(27,skyH*.22),color:'#a9d3a0',phase:.2,rate:.010},
+   {base:skyH+2,height:Math.min(18,skyH*.15),color:'#83bd91',phase:2.1,rate:.014}
+  ];
+  for(const hill of hills){
+   for(let x=-cell;x<cw+cell;x+=cell){
+    const wave=(Math.sin(x*hill.rate+hill.phase)+.55*Math.sin(x*hill.rate*1.9+hill.phase+1.4))*.5+.5;
+    const top=Math.round((hill.base-hill.height*wave)/cell)*cell;
+    ctx.fillStyle=hill.color;
+    ctx.fillRect(x,top,cell+1,skyH-top);
+   }
+  }
+ }
  // Fixed, deterministic pixel-cloud clusters: no per-frame randomness or flicker.
  const clouds=[
   {x:.14,y:.27,w:1.0,h:.8},
@@ -286,8 +302,11 @@ function drawPixelSky(cw,skyBottom){
    if(py+cell<0||py>skyH)continue;
    ctx.fillStyle=gy>=Math.floor(rows*.35)?'#a8d8df':(noise>.78?'#f8fff4':'#eaf7f3');
    ctx.fillRect(px,py,cell,cell);
-   // A few brighter top-edge pixels give the clouds a chunky, layered silhouette.
-   if(gy<0&&noise>.48){ctx.fillStyle='#f8fff4';ctx.fillRect(px,py,cell,Math.max(4,cell*.55));}
+   // Warm, sunlit pixels break up the cloud tops without changing the established palette.
+   if(gy<0&&noise>.48){
+    ctx.fillStyle=((gx+c*2)%5===0)?'#fff0b5':'#f8fff4';
+    ctx.fillRect(px,py,cell,Math.max(4,cell*.55));
+   }
   }
  }
  ctx.restore();
