@@ -251,10 +251,8 @@ function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of sta
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w)return;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
-// Pixel-cloud sky and the terrain below the surface
-const surfaceY=th-camera;
-drawProceduralClouds(cw,surfaceY);
-ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,surfaceY),cw,Math.max(0,ch-surfaceY));
+// distant sky and hills
+ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 for(const worker of state.workers){drawWorker((cw-COLS*tw)/2+worker.x*tw,(worker.y*th-camera),tw,th,worker.mode,worker);if(worker.target){const px=(cw-COLS*tw)/2+worker.target.x*tw,py=worker.target.y*th-camera;ctx.strokeStyle=worker.id===1?'#ffe17c':'#b8edff';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}}
 const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
@@ -311,10 +309,8 @@ function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of sta
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
-// Pixel-cloud sky and the terrain below the surface
-const surfaceY=th-camera;
-drawProceduralClouds(cw,surfaceY);
-ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,surfaceY),cw,Math.max(0,ch-surfaceY));
+// distant sky and hills
+ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 drawWorker((cw-COLS*tw)/2+w.x*tw,(w.y*th-camera),tw,th,w.mode);
 if(w.target){const px=(cw-COLS*tw)/2+w.target.x*tw,py=w.target.y*th-camera;ctx.strokeStyle='#ffe17c';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}
@@ -414,10 +410,8 @@ function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of sta
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w)return;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
-// Pixel-cloud sky and the terrain below the surface
-const surfaceY=th-camera;
-drawProceduralClouds(cw,surfaceY);
-ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,surfaceY),cw,Math.max(0,ch-surfaceY));
+// distant sky and hills
+ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 for(const worker of state.workers){drawWorker((cw-COLS*tw)/2+worker.x*tw,(worker.y*th-camera),tw,th,worker.mode,worker);if(worker.target){const px=(cw-COLS*tw)/2+worker.target.x*tw,py=worker.target.y*th-camera;ctx.strokeStyle=worker.id===1?'#ffe17c':'#b8edff';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}}
 const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
@@ -462,45 +456,10 @@ requestAnimationFrame(loop);
 +val);else if(Math.random()<.12)note('Cleared dirt and opened the way deeper.');save();}}}
 function tick(dt){if(!state.workers.length)syncWorkers();for(const worker of state.workers){state.worker=worker;tickWorker(dt);}state.worker=state.workers[0]||null;}
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
-function drawProceduralClouds(cw,surfaceY){
- if(surfaceY<=0)return;
- const skyHeight=Math.min(surfaceY,canvas.clientHeight);
- const now=performance.now();
- const cycle=cw+260;
- const hash=n=>{const v=Math.sin(n*127.1+311.7)*43758.5453;return v-Math.floor(v);};
- const drift=(now*.012)%cycle;
- ctx.save();
- ctx.beginPath();ctx.rect(0,0,cw,skyHeight);ctx.clip();
- // Large, high-contrast pixel clouds drift slowly across the visible sky.
- for(let i=-2;i<Math.ceil(cw/160)+3;i++){
-  const seed=i+40;
-  const x=((i*160+hash(seed)*100-drift)%cycle+cycle)%cycle-130;
-  const y=4+hash(seed+13)*Math.max(10,Math.min(65,skyHeight*.25));
-  const unit=8;
-  const width=10+Math.floor(hash(seed+27)*7);
-  const rows=[
-   {start:2,count:Math.max(3,width-4),row:0},
-   {start:1,count:width-2,row:1},
-   {start:0,count:width,row:2},
-   {start:1,count:width-2,row:3}
-  ];
-  const baseX=Math.round(x/unit)*unit;
-  ctx.fillStyle='#6faebc';
-  for(const p of rows)ctx.fillRect(baseX+p.start*unit,y+p.row*unit+4,p.count*unit,unit);
-  ctx.fillStyle='#dff5f4';
-  for(const p of rows)ctx.fillRect(baseX+p.start*unit,y+p.row*unit,p.count*unit,unit);
-  ctx.fillStyle='#ffffff';
-  ctx.fillRect(baseX+3*unit,y,Math.max(2,width-6)*unit,unit);
-  ctx.fillRect(baseX+2*unit,y+unit,Math.max(2,width-5)*unit,unit);
- }
- ctx.restore();
-}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
 ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
-const surfaceY=th-camera;
-drawProceduralClouds(cw,surfaceY);
-// distant hills and the land below the surface
-ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,surfaceY),cw,Math.max(0,ch-surfaceY));
+// distant sky and hills
+ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 drawWorker((cw-COLS*tw)/2+w.x*tw,(w.y*th-camera),tw,th,w.mode);
 if(w.target){const px=(cw-COLS*tw)/2+w.target.x*tw,py=w.target.y*th-camera;ctx.strokeStyle='#ffe17c';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}
