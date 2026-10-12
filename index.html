@@ -150,48 +150,58 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 }
 .header-right .pill{white-space:nowrap;font-size:8px;padding:5px 6px}
 
-/* Session 5: unified bottom-right control dock, stacked vertically for mobile. */
+/* Session 7: compact bottom control row with icon-only mine navigation. */
 @media(max-width:759px){
  .actions{
   left:auto!important;right:12px!important;
-  width:min(190px,calc(100vw - 24px))!important;
+  width:min(148px,39vw)!important;
   grid-template-columns:1fr!important;
   bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
-  gap:6px!important;
+  gap:5px!important;padding:6px!important;
  }
- .actions .btn{width:100%;min-height:36px!important}
+ .actions .btn{width:100%;min-height:34px!important;padding:7px 4px!important;font-size:9px!important}
  .mine-nav{
-  left:auto!important;right:12px!important;
-  width:min(190px,calc(100vw - 24px))!important;
-  grid-template-columns:1fr!important;
-  bottom:calc(env(safe-area-inset-bottom,0px) + 116px)!important;
-  padding:8px!important;
-  border:3px solid #c5cbc7!important;
-  gap:6px!important;
+  left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
+  width:min(78px,21vw)!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:5px!important;padding:0!important;
+  border:0!important;background:transparent!important;box-shadow:none!important;
  }
- .mine-nav .nav-btn{width:100%;min-height:36px!important}
+ .mine-nav .nav-btn{
+  width:100%;min-width:0;min-height:40px!important;
+  padding:4px 0!important;font-size:18px!important;line-height:1!important;
+  display:flex;align-items:center;justify-content:center;
+ }
  .upgrade-btn{
   left:12px!important;right:auto!important;
   bottom:calc(env(safe-area-inset-bottom,0px) + 12px)!important;
-  width:min(150px,calc(100vw - 24px))!important;
-  min-height:36px!important;
+  width:min(108px,28vw)!important;min-height:40px!important;
+  padding:6px 3px!important;font-size:8px!important;
  }
-
 }
 @media(min-width:760px){
  .actions{
   left:auto!important;right:18px!important;bottom:18px!important;
-  width:210px!important;grid-template-columns:1fr!important;
+  width:190px!important;grid-template-columns:1fr!important;
  }
+ .actions .btn{min-height:38px!important}
  .mine-nav{
-  left:auto!important;right:18px!important;bottom:124px!important;
-  width:210px!important;grid-template-columns:1fr!important;
+  left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  bottom:18px!important;width:96px!important;
+  grid-template-columns:1fr 1fr!important;gap:6px!important;
+  padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+ }
+ .mine-nav .nav-btn{
+  width:100%;min-height:42px!important;padding:4px!important;
+  font-size:20px!important;display:flex;align-items:center;justify-content:center;
  }
  .upgrade-btn{
   left:18px!important;right:auto!important;bottom:18px!important;
-  width:180px!important;
+  width:140px!important;min-height:42px!important;
  }
 }
+
 
 </style>
 </head>
@@ -208,7 +218,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
  <section class="panel">
   <div class="world-head"><span>⛏ PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
   <canvas id="world" aria-label="Pixel-art mining world"></canvas>
-  <div class="mine-nav" aria-label="Mine map navigation"><button class="nav-btn" id="scrollUp" type="button" aria-label="Scroll mine upward">▲ UP</button><div class="nav-readout" aria-hidden="true"></div><button class="nav-btn" id="scrollDown" type="button" aria-label="Scroll mine downward">▼ DOWN</button></div>
+  <div class="mine-nav" aria-label="Mine map navigation"><button class="nav-btn" id="scrollUp" type="button" aria-label="Scroll mine upward">▲</button><button class="nav-btn" id="scrollDown" type="button" aria-label="Scroll mine downward">▼</button></div>
   <div class="world-head"><span>Use the controls to explore vertically.</span><span id="tileReadout">32px tiles</span></div>
  </section>
  <aside class="side">
