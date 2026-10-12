@@ -1022,7 +1022,28 @@ $('resetSaveBtn').addEventListener('click',resetSave);
 $('upgradeOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='upgrades';renderUpgrades();const vp=$('skillTreeViewport');if(vp&&!vp.dataset.initialized){vp.scrollLeft=Math.max(0,750-vp.clientWidth/2);vp.scrollTop=0;vp.dataset.initialized='1';}});$('workersOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='workers';renderUpgrades();});$('upgradeClose').addEventListener('click',()=>$('upgradeOverlay').classList.remove('open'));$('upgradeOverlay').addEventListener('click',e=>{if(e.target===$('upgradeOverlay'))$('upgradeOverlay').classList.remove('open');});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('upgradeOverlay').classList.remove('open');});
 // Mine navigation is button-only on mobile and desktop. Dragging, swiping, and wheel input do not move the mine view.
 load();syncWorkers();state.terrain=makeTerrain();renderUpgrades();resize();window.addEventListener('resize',resize);note('Plains survey complete. Break dirt to reach stone and ore deposits.');let autosave=0;
-function loop(now){const dt=Math.min(.1,(now-lastTick)/1000);lastTick=now;tick(dt);if(now-lastRender>33){draw();lastRender=now;}autosave+=dt;if(autosave>10){save();autosave=0;}requestAnimationFrame(loop);}
+let runtimeErrorReported=false;
+function drawRecoveryFrame(){
+ const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;
+ ctx.clearRect(0,0,cw,ch);ctx.fillStyle='#8fcbd0';ctx.fillRect(0,0,cw,ch);
+ const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw;
+ const worker=state.worker||state.workers[0]||createWorker(1);
+ const camera=Math.max(0,worker.y*th-ch*.42);
+ ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-Math.max(0,th-camera)));
+ const start=Math.max(0,Math.floor(camera/th)),end=Math.min(ROWS,start+Math.ceil(ch/th)+2),offset=(cw-COLS*tw)/2;
+ for(let y=start;y<end;y++)for(let x=0;x<COLS;x++){const t=state.terrain&&state.terrain[y]&&state.terrain[y][x];if(!t)continue;const mat=mats[t.type];if(!mat)continue;const px=offset+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;ctx.fillStyle=mat.color;ctx.fillRect(px,py,tw,th);ctx.strokeStyle='rgba(0,0,0,.2)';ctx.strokeRect(px+.5,py+.5,tw-1,th-1);}
+ const wx=offset+worker.x*tw,wy=worker.y*th-camera;ctx.fillStyle='#4777b5';ctx.fillRect(wx+tw*.25,wy+th*.35,tw*.5,th*.4);ctx.fillStyle='#e8b17c';ctx.fillRect(wx+tw*.3,wy+th*.12,tw*.42,th*.24);
+}
+function loop(now){
+ requestAnimationFrame(loop);
+ const dt=Math.min(.1,(now-lastTick)/1000);lastTick=now;
+ try{tick(dt);}catch(error){if(!runtimeErrorReported){runtimeErrorReported=true;console.error('Mining simulation update failed:',error);note('A simulation hiccup was caught. The mine is recovering; refresh if it persists.');}}
+ if(now-lastRender>33){
+  try{draw();}catch(error){if(!runtimeErrorReported){runtimeErrorReported=true;console.error('Mining scene render failed:',error);note('A scene-render hiccup was caught. Showing a safe mine view while recovering.');}try{drawRecoveryFrame();}catch(recoveryError){console.error('Mine recovery render failed:',recoveryError);}}
+  lastRender=now;
+ }
+ autosave+=dt;if(autosave>10){save();autosave=0;}
+}
 requestAnimationFrame(loop);
 })();
 </script>
