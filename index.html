@@ -21,6 +21,7 @@ header{justify-content:space-between}.brand{font-weight:1000;font-size:clamp(21p
 canvas{display:block;width:100%;height:min(62vh,560px);min-height:330px;background:#8ac9d1;image-rendering:pixelated;touch-action:none;overscroll-behavior:contain}
 .mine-nav{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;padding:9px;background:#172a22;border-top:1px solid #3e5a43}.nav-btn{min-height:44px;border:2px solid #78945f;border-radius:7px;padding:10px 12px;background:#354f32;color:#f8edcf;font:900 12px 'Silkscreen',ui-monospace,monospace;touch-action:manipulation;box-shadow:0 2px #0c1811}.nav-btn:active{transform:translateY(1px);box-shadow:0 1px #0c1811}.nav-readout{font-size:9px;letter-spacing:1px;color:#9dbb98;text-align:center;white-space:nowrap}.actions{display:grid;grid-template-columns:1fr 1fr}.btn{border:2px solid #78945f;border-radius:8px;padding:13px 10px;background:#456638;color:#fff3cf;font-weight:900;box-shadow:0 3px #17291b}.btn:active{transform:translateY(2px);box-shadow:0 1px #17291b}.btn.stop{background:#753e35;border-color:#ba7860}.btn:disabled{opacity:.45}.hint{font-size:11px;line-height:1.55;color:#b4c7ad;padding:0 2px}.log{max-height:110px;overflow:auto;font-size:11px;line-height:1.6;color:#c4d3b8;padding:9px 12px}.log div+div{border-top:1px solid #314a3a}.pill{font-size:10px;padding:5px 7px;border:1px solid #59765d;border-radius:5px;color:#c9dfb7}
 .reset-save-btn{position:absolute;z-index:7;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 116px);border:2px solid #c77b69;border-radius:7px;background:rgba(78,37,31,.94);color:#ffe0d5;font:900 11px 'Silkscreen',ui-monospace,monospace;padding:9px 11px;box-shadow:0 2px rgba(10,24,16,.35)}
+.worker-btn{position:absolute;z-index:7;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 56px);border:2px solid #8ec7d1;border-radius:7px;background:rgba(30,66,72,.94);color:#e0fbff;font:900 11px 'Silkscreen',ui-monospace,monospace;padding:9px 11px;box-shadow:0 2px rgba(10,24,16,.35)}
 .upgrade-btn{position:absolute;z-index:7;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 116px);border:2px solid #e4c46b;border-radius:7px;background:rgba(75,59,28,.92);color:#fff0b5;font:900 11px 'Silkscreen',ui-monospace,monospace;padding:9px 11px;box-shadow:0 2px rgba(10,24,16,.35)}
 .upgrade-overlay{display:none;position:fixed;z-index:20;inset:0;background:rgba(7,16,12,.78);backdrop-filter:blur(5px);padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 14px);overflow:auto;align-items:center;justify-content:center}
 .upgrade-overlay.open{display:flex}.upgrade-panel{width:min(100%,620px);max-height:100%;overflow:auto;background:#1b3028;border:2px solid #9ab66a;border-radius:12px;box-shadow:0 10px 40px #0009;padding:14px}
@@ -63,7 +64,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 
 /* Neutral pixel-art UI frames: crisp square corners, pale-grey highlights, dark stepped edges. */
 :root{--ui-frame:#c5cbc7;--ui-frame-shadow:#59625d;--ui-frame-dark:#29342e}
-.stat,.pill,.world-head,.nav-btn,.btn,.reset-save-btn,.upgrade-btn,
+.stat,.pill,.world-head,.nav-btn,.btn,.reset-save-btn,.worker-btn,.upgrade-btn,
 .upgrade-panel,.upgrade-tab,.upgrade-card,.upgrade-buy,.upgrade-close{
  border-radius:0!important;
  border-color:var(--ui-frame)!important;
@@ -74,7 +75,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 .pill,.world-head{
  box-shadow:inset 1px 1px rgba(255,255,255,.14),inset -1px -1px rgba(0,0,0,.18);
 }
-.nav-btn,.btn,.reset-save-btn,.upgrade-btn,.upgrade-tab,.upgrade-buy,.upgrade-close{
+.nav-btn,.btn,.reset-save-btn,.worker-btn,.upgrade-btn,.upgrade-tab,.upgrade-buy,.upgrade-close{
  border-width:2px!important;
  box-shadow:inset 2px 2px rgba(255,255,255,.18),inset -2px -2px rgba(0,0,0,.25),0 3px var(--ui-frame-dark)!important;
 }
@@ -152,6 +153,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 
 /* Session 7: compact bottom control row with icon-only mine navigation. */
 @media(max-width:759px){
+ .bottom-menu-buttons{position:absolute;z-index:7;left:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px);width:min(148px,39vw);display:flex;flex-direction:column;gap:8px}
+ .bottom-menu-buttons .worker-btn,.bottom-menu-buttons .upgrade-btn{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%!important;min-height:34px!important;padding:6px 3px!important;font-size:8px!important}
  .actions{
   left:auto!important;right:12px!important;
   width:min(148px,39vw)!important;
@@ -181,6 +184,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
  }
 }
 @media(min-width:760px){
+ .bottom-menu-buttons{position:absolute;z-index:7;left:18px;bottom:18px;width:190px;display:flex;flex-direction:column;gap:8px}
+ .bottom-menu-buttons .worker-btn,.bottom-menu-buttons .upgrade-btn{position:static!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%!important;min-height:38px!important}
  .actions{
   left:auto!important;right:18px!important;bottom:18px!important;
   width:190px!important;grid-template-columns:1fr!important;
@@ -208,7 +213,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 <body>
 <div class="app">
 <header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button">↺ RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
-<button class="upgrade-btn" id="upgradeOpen" type="button">⬆ UPGRADES</button>
+<div class="bottom-menu-buttons"><button class="worker-btn" id="workersOpen" type="button">👷 WORKERS</button><button class="upgrade-btn" id="upgradeOpen" type="button">⬆ UPGRADES</button></div>
 <div class="stats">
  <div class="stat"><div class="label">Cash</div><div class="value" id="cash">$0</div><div class="sub" id="runCash">$0 earned this run</div></div>
  <div class="stat"><div class="label">Depth</div><div class="value" id="depth">0 m</div><div class="sub">Best: <span id="bestDepth">0 m</span></div></div>
@@ -227,7 +232,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
   <div class="panel"><div class="world-head"><strong>HOW TO PLAY</strong></div><div class="log">Start a run to send your workers underground. Each miner works its own column. Dirt earns $1, stone earns $2, and ore rewards increase with depth. Stop whenever you want: cash is kept and excavated terrain is restored.</div></div>
  </aside>
 </div>
-<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER UPGRADES</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="upgrade-tabs"><button class="upgrade-tab active" id="upgradesTab" type="button">UPGRADES</button><button class="upgrade-tab" id="workersTab" type="button">WORKERS</button></div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Upgrades are permanent and remain after stopping a run. Resource Detection surveys the generated mine before the worker starts, then chooses a promising column while keeping the miner centered over each block.</div></div></div>
+<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER UPGRADES</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Upgrades are permanent and remain after stopping a run. Resource Detection surveys the generated mine before the worker starts, then chooses a promising column while keeping the miner centered over each block.</div></div></div>
 <div class="hint">Prototype note: run terrain is generated locally. Your cash and best depth are saved in this browser; saves do not sync between devices.</div>
 </div>
 <script>
@@ -288,8 +293,7 @@ function upgradeCost(key){const d=upgradeDefs[key];return Math.floor(d.base*Math
 function renderUpgrades(){
  const grid=$('upgradeGrid');if(!grid)return;
  $('upgradeCash').textContent='Available cash: $'+Math.floor(state.cash).toLocaleString();
- $('upgradesTab').classList.toggle('active',upgradeView==='upgrades');
- $('workersTab').classList.toggle('active',upgradeView==='workers');
+ $('upgradeTitle').textContent=upgradeView==='workers'?'WORKERS':'MINER UPGRADES';
  if(upgradeView==='upgrades'){
   $('upgradeFoot').textContent='Upgrades are permanent and remain after stopping a run. Resource Detection gives miners active route planning toward valuable deposits instead of only choosing a starting column.';
   grid.innerHTML=Object.keys(upgradeDefs).map(key=>{const d=upgradeDefs[key],level=state.upgrades[key]||0,cost=upgradeCost(key),maxed=level>=d.max;return '<article class="upgrade-card"><h3>'+d.icon+' '+d.name+'</h3><div class="upgrade-meta"><span>LEVEL '+level+' / '+d.max+'</span><span>'+(maxed?'MAX LEVEL':d.effect(level))+'</span></div><p>'+d.description+'</p><button class="upgrade-buy" type="button" data-upgrade="'+key+'" '+(maxed||state.cash<cost?'disabled':'')+'>'+(maxed?'✓ MAXED':'BUY · $'+cost.toLocaleString())+'</button></article>';}).join('');
@@ -663,7 +667,7 @@ function scrollMine(direction){const max=Math.max(0,ROWS*TILE-state.cameraY-canv
 $('scrollUp').addEventListener('click',()=>scrollMine(-1));$('scrollDown').addEventListener('click',()=>scrollMine(1));
 function resetSave(){if(!confirm('Reset ALL saved progress? This permanently clears your cash, best depth, lifetime earnings, and upgrades. This cannot be undone.'))return;try{localStorage.removeItem(SAVE_KEY);}catch(e){}state.cash=0;state.bestDepth=0;state.lifetime=0;for(const key of Object.keys(state.upgrades))state.upgrades[key]=0;state.workerCount=1;state.groupedMode=false;state.workers=[createWorker(1)];syncWorkers();state.runCash=0;state.active=false;state.runStart=0;state.terrain=makeTerrain();state.cameraY=0;state.manualScroll=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;renderUpgrades();draw();note('Save reset. Starting fresh with zero cash and no upgrades.');save();}
 $('resetSaveBtn').addEventListener('click',resetSave);
-$('upgradeOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='upgrades';renderUpgrades();});$('upgradesTab').addEventListener('click',()=>{upgradeView='upgrades';renderUpgrades();});$('workersTab').addEventListener('click',()=>{upgradeView='workers';renderUpgrades();});$('upgradeClose').addEventListener('click',()=>$('upgradeOverlay').classList.remove('open'));$('upgradeOverlay').addEventListener('click',e=>{if(e.target===$('upgradeOverlay'))$('upgradeOverlay').classList.remove('open');});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('upgradeOverlay').classList.remove('open');});
+$('upgradeOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='upgrades';renderUpgrades();});$('workersOpen').addEventListener('click',()=>{$('upgradeOverlay').classList.add('open');upgradeView='workers';renderUpgrades();});$('upgradeClose').addEventListener('click',()=>$('upgradeOverlay').classList.remove('open'));$('upgradeOverlay').addEventListener('click',e=>{if(e.target===$('upgradeOverlay'))$('upgradeOverlay').classList.remove('open');});document.addEventListener('keydown',e=>{if(e.key==='Escape')$('upgradeOverlay').classList.remove('open');});
 // Mine navigation is button-only on mobile and desktop. Dragging, swiping, and wheel input do not move the mine view.
 load();syncWorkers();state.terrain=makeTerrain();renderUpgrades();resize();window.addEventListener('resize',resize);note('Plains survey complete. Break dirt to reach stone and ore deposits.');let autosave=0;
 function loop(now){const dt=Math.min(.1,(now-lastTick)/1000);lastTick=now;tick(dt);if(now-lastRender>33){draw();lastRender=now;}autosave+=dt;if(autosave>10){save();autosave=0;}requestAnimationFrame(loop);}
