@@ -115,8 +115,8 @@ if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Ma
 if(!w.target||!tileAt(w.target.x,w.target.y)){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
 const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
 const tx=w.target.x,ty=w.target.y;
-const dist=Math.hypot((tx+.5)-(w.x+.5),(ty+.5)-(w.y+.5));
-if(dist>1.15){w.mode='walk';w.walk+=dt;const step=Math.min(dist,dt*1.8);w.x+=((tx-w.x)/dist)*step;w.y+=((ty-w.y)/dist)*step;return;}
+// Targets are always adjacent to the worker. Stay in the clear tile beside
+// the block instead of walking into the solid tile being mined.
 w.mode='mine';w.progress+=dt;const hitEvery=1.0;if(w.progress>=hitEvery){w.progress-=hitEvery;t.hp-=1;w.walk+=dt;if(t.hp<=0){const type=t.type,val=mats[type].value;state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;state.bestDepth=Math.max(state.bestDepth,Math.max(0,Math.floor((w.y-1)*TILE/32)));w.target=null;w.progress=0;if(val>0)note('Found '+type+'! +$'+val);else if(Math.random()<.12)note('Cleared dirt and opened the way deeper.');save();}}}
 function resize(){const rect=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const camera=state.cameraY+state.manualScroll;const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
