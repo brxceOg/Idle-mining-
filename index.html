@@ -307,6 +307,7 @@ function surfaceTreeColumns(){
 const TREE_COLUMNS=surfaceTreeColumns();
 function isTreeColumn(x){return TREE_COLUMNS.includes(x);}
 let treeFalls=[];
+let caveFalls=[];
 function checkpointRow(){return state.checkpoint==='cave'?CAVE_START+4:0;}
 function createWorker(id){const y=checkpointRow()+.15;return {id,type:'standard',x:COLS/2,y,tx:COLS/2,ty:y,mode:'wander',target:null,routeX:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
 function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;const n=state.workers.length;state.workers.forEach((w,i)=>{w.homeX=state.groupedMode?Math.max(2,Math.min(COLS-3,COLS/2+(i-(n-1)/2)*1.2)):(n===1?COLS/2:2+(i*(COLS-5)/(n-1)));if(!state.active&&w.mode==='wander')w.x=w.homeX;});state.worker=state.workers[0]||null;}
@@ -340,7 +341,7 @@ function makeTerrain(){
  return t;
 }
 function makeTile(type,x,y){return {type,x,y,hp:mats[type].hp,maxHp:mats[type].hp,solid:true,seed:Math.random()};}
-function resetRunTerrain(message='Terrain restored. Your cash and permanent records are safe.'){state.terrain=makeTerrain();treeFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();const cameraScale=Math.min(canvas.clientWidth/(COLS*TILE),1.25),cameraTile=TILE*cameraScale;state.cameraY=Math.max(0,checkpointRow()*cameraTile-canvas.clientHeight*.42);state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(message);save();}
+function resetRunTerrain(message='Terrain restored. Your cash and permanent records are safe.'){state.terrain=makeTerrain();treeFalls=[];caveFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();const cameraScale=Math.min(canvas.clientWidth/(COLS*TILE),1.25),cameraTile=TILE*cameraScale;state.cameraY=Math.max(0,checkpointRow()*cameraTile-canvas.clientHeight*.42);state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(message);save();}
 function solid(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return true;return !!state.terrain[y][x];}
 function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terrain[y][x];}
 const upgradeDefs={
@@ -476,6 +477,7 @@ function tickWorker(dt){
   if(t.hp<=0){
    const type=t.type,val=mats[type].value;
    if(ty===1&&type==='grass'&&isTreeColumn(tx))treeFalls.push({x:tx,direction:tx<COLS/2?-1:1,start:performance.now(),duration:620});
+   if(type==='caveRock'&&hasCaveStalactite(tx,ty,t))caveFalls.push({x:tx,y:ty,seed:t.seed,start:performance.now(),duration:560});
    state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;
    state.bestDepth=Math.max(state.bestDepth,Math.max(0,Math.floor((w.y-1)*TILE/32)));
    w.routeX=tx!==Math.round(w.x)?tx:null;w.target=null;w.progress=0;
@@ -554,8 +556,97 @@ if(caveView){ctx.fillStyle='#171b2b';ctx.fillRect(0,0,cw,ch);for(let x=0;x<cw;x+
 else{drawPixelSky(cw,Math.max(0,th-camera));ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));}
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
 drawSurfaceDetails(cw,tw,th,camera);
+drawCaveDetails(cw,tw,th,camera,startRow,endRow);
 for(const worker of state.workers){drawWorker((cw-COLS*tw)/2+worker.x*tw,(worker.y*th-camera),tw,th,worker.mode,worker);if(worker.target){const px=(cw-COLS*tw)/2+worker.target.x*tw,py=worker.target.y*th-camera;ctx.strokeStyle=worker.id===1?'#ffe17c':'#b8edff';ctx.lineWidth=2;ctx.strokeRect(px+2,py+2,tw-4,th-4);}}
 const depth=Math.max(0,Math.floor((w.y-1)*TILE/32));$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';$('cash').textContent='$'+Math.floor(state.cash).toLocaleString();$('runCash').textContent='$'+Math.floor(state.runCash).toLocaleString()+' earned this run';$('depth').textContent=depth+' m';$('bestDepth').textContent=state.bestDepth+' m';$('workerCountReadout').textContent=String(state.workerCount);$('workerState').textContent=state.active?(state.workerCount>1?(state.groupedMode?'Crew focused':'Crew mining'):(w.mode==='mine'?'Mining '+(w.target? w.target.t.type:'tile'):w.mode==='walk'?'Moving underground':w.mode==='stuck'?'Finding a path':'Working')):'Wandering';$('materialReadout').textContent=w.target&&tileAt(w.target.x,w.target.y)?w.target.t.type+' · $'+mats[w.target.t.type].value:'Exploring';}
+function caveFeatureRoll(tile,x,y,salt=0){
+ const seed=tile&&Number.isFinite(tile.seed)?tile.seed:.5;
+ const n=Math.abs(Math.sin((x+11)*127.1+(y+7)*311.7+seed*91.7+salt*47.3)*43758.5453);
+ return n-Math.floor(n);
+}
+function hasCaveStalactite(x,y,tile){
+ if(!tile||tile.type!=='caveRock'||y<CAVE_START||y>=ROWS-1||tileAt(x,y+1))return false;
+ if(y===CAVE_START)return x>=2&&x<COLS-2&&((x*7+3)%9<4);
+ return y>CAVE_START+5&&caveFeatureRoll(tile,x,y,1)>.58;
+}
+function hasCaveStalagmite(x,y,tile){
+ if(!tile||tile.type!=='caveRock'||y<CAVE_START+5||y>=ROWS-1||tileAt(x,y-1))return false;
+ if(y===CAVE_START+5)return x>=2&&x<COLS-2&&((x*5+2)%11<4);
+ return caveFeatureRoll(tile,x,y,2)>.67;
+}
+function drawStalactite(x,y,tw,th,seed){
+ const scale=tw/32,variant=Math.floor(seed*13)%3;
+ const len=(.52+((seed*17)%1)*.42)*th;
+ const wide=(variant===1?10:variant===2?7:8)*scale;
+ ctx.save();ctx.translate(x,y);
+ ctx.fillStyle='#252b40';
+ ctx.fillRect(-wide*.5,0,wide,len*.24);
+ ctx.fillRect(-wide*.36,len*.22,wide*.72,len*.24);
+ ctx.fillRect(-wide*.23,len*.44,wide*.46,len*.24);
+ ctx.fillRect(-wide*.11,len*.66,wide*.22,len*.22);
+ ctx.fillRect(-wide*.045,len*.84,Math.max(1,wide*.09),len*.16);
+ ctx.fillStyle='#626b88';
+ ctx.fillRect(-wide*.38,0,wide*.22,len*.25);
+ ctx.fillRect(-wide*.25,len*.27,wide*.16,len*.22);
+ ctx.fillStyle='#9ba9bd';
+ ctx.fillRect(-wide*.31,1*scale,Math.max(1,wide*.1),len*.12);
+ ctx.fillStyle='#3a435e';
+ ctx.fillRect(wide*.18,len*.18,wide*.17,len*.18);
+ if(variant===2){ctx.fillStyle='#6fd5d6';ctx.fillRect(-wide*.06,len*.48,Math.max(1,wide*.12),len*.16);}
+ ctx.restore();
+}
+function drawStalagmite(x,y,tw,th,seed){
+ const scale=tw/32,variant=Math.floor(seed*11)%3;
+ const h=(.34+((seed*19)%1)*.34)*th;
+ const wide=(variant===1?12:variant===2?8:10)*scale;
+ ctx.save();ctx.translate(x,y);
+ ctx.fillStyle='#252b40';
+ ctx.fillRect(-wide*.5,-h*.22,wide,h*.22);
+ ctx.fillRect(-wide*.37,-h*.43,wide*.74,h*.22);
+ ctx.fillRect(-wide*.24,-h*.65,wide*.48,h*.22);
+ ctx.fillRect(-wide*.12,-h*.84,wide*.24,h*.19);
+ ctx.fillRect(-wide*.045,-h,Math.max(1,wide*.09),h*.17);
+ ctx.fillStyle='#626b88';
+ ctx.fillRect(-wide*.35,-h*.23,wide*.2,h*.2);
+ ctx.fillRect(-wide*.23,-h*.48,wide*.14,h*.19);
+ ctx.fillStyle='#9ba9bd';
+ ctx.fillRect(-wide*.24,-h*.78,Math.max(1,wide*.1),h*.15);
+ ctx.fillStyle='#3a435e';
+ ctx.fillRect(wide*.16,-h*.38,wide*.14,h*.18);
+ if(variant===2){ctx.fillStyle='#6fd5d6';ctx.fillRect(-wide*.06,-h*.56,Math.max(1,wide*.12),h*.15);}
+ ctx.restore();
+}
+function drawCaveDetails(cw,tw,th,camera,startRow,endRow){
+ const now=performance.now(),offset=(cw-COLS*tw)/2,kept=[];
+ for(const fall of caveFalls){
+  const age=now-fall.start,progress=Math.min(1,age/fall.duration);
+  if(age<fall.duration+360)kept.push(fall);
+  const x=offset+(fall.x+.5)*tw,y=(fall.y+1)*th-camera;
+  if(y<-th*2||y>canvas.clientHeight+th*2)continue;
+  if(age<fall.duration){
+   ctx.save();ctx.translate(x,y+progress*progress*th*2.3);
+   ctx.rotate((fall.x%2===0?1:-1)*progress*.75);
+   drawStalactite(0,0,tw,th,fall.seed);ctx.restore();
+  }else{
+   const dust=(age-fall.duration)/360;
+   for(let p=0;p<5;p++){
+    ctx.fillStyle=p%2?'#626b88':'#a5b0c0';
+    const dx=((p*13+fall.x*3)%9-4)*dust*tw*.6;
+    ctx.fillRect(x+dx,y+th*.2+dust*th*.4,Math.max(1,2*tw/32),Math.max(1,2*tw/32));
+   }
+  }
+ }
+ caveFalls=kept;
+ for(let y=Math.max(CAVE_START,startRow);y<endRow;y++){
+  for(let x=0;x<COLS;x++){
+   const tile=tileAt(x,y);if(!tile||tile.type!=='caveRock')continue;
+   const px=offset+(x+.5)*tw,py=y*th-camera;
+   if(py<-th*2||py>canvas.clientHeight+th*2)continue;
+   if(hasCaveStalactite(x,y,tile))drawStalactite(px,py+1,tw,th,tile.seed);
+   if(hasCaveStalagmite(x,y,tile))drawStalagmite(px,py,tw,th,tile.seed);
+  }
+ }
+}
 function drawTile(t,x,y,w,h){const m=mats[t.type];ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle='rgba(0,0,0,.12)';ctx.fillRect(x,y+h-3,w,3);ctx.strokeStyle='rgba(28,28,20,.3)';ctx.strokeRect(x+.5,y+.5,w-1,h-1);const r=(t.seed||.4);if(t.type==='caveRock'){ctx.fillStyle='#626a85';ctx.fillRect(x+w*.16,y+h*.2,w*.35,Math.max(2,h*.08));ctx.fillStyle='#30364a';ctx.fillRect(x+w*.55,y+h*.62,w*.28,Math.max(2,h*.1));ctx.fillStyle='#828aa1';ctx.fillRect(x+w*.2,y+h*.72,w*.16,Math.max(1,h*.06));}else if(t.type==='crystal'){ctx.fillStyle='#a6f5ef';ctx.fillRect(x+w*.22,y+h*.18,w*.18,h*.45);ctx.fillStyle='#4c9fae';ctx.fillRect(x+w*.42,y+h*.3,w*.2,h*.48);ctx.fillStyle='#d8fffb';ctx.fillRect(x+w*.24,y+h*.2,w*.06,h*.25);ctx.fillStyle='#367887';ctx.fillRect(x+w*.61,y+h*.55,w*.12,h*.18);}else if(t.type==='grass'){ctx.fillStyle='#a6d96a';ctx.fillRect(x,y,w,Math.max(3,h*.17));for(let i=0;i<4;i++){ctx.fillStyle=i%2?'#477e3e':'#d1e67d';ctx.fillRect(x+((i*7+3)%Math.max(4,w-2)),y+1,2,2);}}else if(t.type==='dirt'){ctx.fillStyle='#bb8150';ctx.fillRect(x+w*.2,y+h*.25,3,2);ctx.fillRect(x+w*.68,y+h*.65,2,3);ctx.fillStyle='#77472f';ctx.fillRect(x+w*.48,y+h*.42,3,2);}else if(t.type==='stone'){ctx.fillStyle='#aab0a0';ctx.fillRect(x+w*.2,y+h*.23,w*.3,2);ctx.fillStyle='#555e58';ctx.fillRect(x+w*.58,y+h*.63,w*.22,2);}else{ctx.fillStyle=m.color;ctx.fillRect(x,y,w,h);ctx.fillStyle=t.type==='coal'?'#171e1b':t.type==='copper'?'#f3ad68':t.type==='iron'?'#d4d8cb':t.type==='silver'?'#f1f7ee':'#fff09a';ctx.fillRect(x+w*.22,y+h*.2,w*.22,h*.18);ctx.fillRect(x+w*.48,y+h*.42,w*.25,h*.25);ctx.fillRect(x+w*.18,y+h*.62,w*.16,h*.12);}
 if(t.hp<t.maxHp){const damage=1-t.hp/t.maxHp;ctx.strokeStyle='rgba(27,20,16,'+(0.35+damage*.5)+')';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x+w*.2,y+h*.2);ctx.lineTo(x+w*.48,y+h*.48);if(damage>.25){ctx.lineTo(x+w*.38,y+h*.7);ctx.moveTo(x+w*.48,y+h*.48);ctx.lineTo(x+w*.78,y+h*.3);}if(damage>.6){ctx.moveTo(x+w*.48,y+h*.48);ctx.lineTo(x+w*.65,y+h*.82);}ctx.stroke();}}
 function drawSurfaceDetails(cw,tw,th,camera){
