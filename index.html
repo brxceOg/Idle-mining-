@@ -336,7 +336,7 @@ function makeTerrain(){
  return t;
 }
 function makeTile(type,x,y){return {type,x,y,hp:mats[type].hp,maxHp:mats[type].hp,solid:true,seed:Math.random()};}
-function resetRunTerrain(message='Terrain restored. Your cash and permanent records are safe.'){state.terrain=makeTerrain();treeFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();state.cameraY=Math.max(0,checkpointRow()*TILE-canvas.clientHeight*.42);state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(message);save();}
+function resetRunTerrain(message='Terrain restored. Your cash and permanent records are safe.'){state.terrain=makeTerrain();treeFalls=[];state.workers=Array.from({length:state.workerCount},(_,i)=>createWorker(i+1));syncWorkers();const cameraScale=Math.min(canvas.clientWidth/(COLS*TILE),1.25),cameraTile=TILE*cameraScale;state.cameraY=Math.max(0,checkpointRow()*cameraTile-canvas.clientHeight*.42);state.manualScroll=0;state.runCash=0;state.active=false;state.runStart=0;state.runId++;$('runState').textContent='● IDLE';$('runState').className='';$('workerState').textContent='Wandering';$('startBtn').disabled=false;$('stopBtn').disabled=true;$('biomeTitle').textContent=state.checkpoint==='cave'?'CAVE BIOME':'PLAINS MINE';note(message);save();}
 function solid(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return true;return !!state.terrain[y][x];}
 function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terrain[y][x];}
 const upgradeDefs={
@@ -545,7 +545,7 @@ function drawPixelSky(cw,skyBottom){
  ctx.restore();
 }
 function draw(){const cw=canvas.clientWidth,ch=canvas.clientHeight;if(!cw||!ch)return;ctx.clearRect(0,0,cw,ch);const scale=Math.min(cw/(COLS*TILE),1.25),tw=TILE*scale,th=tw,visibleRows=Math.ceil(ch/th)+2;let w=state.worker;if(!w){syncWorkers();w=state.worker;}if(!w){w=createWorker(1);state.workers=[w];state.worker=w;}if(!state.terrain||!state.terrain.length)state.terrain=makeTerrain();const targetCam=w.y*th-ch*.42;state.cameraY+=(targetCam-state.cameraY)*.09;const minCamera=Math.min(0,targetCam),maxCamera=Math.max(0,ROWS*TILE-ch);const camera=Math.max(minCamera,Math.min(maxCamera,state.cameraY+state.manualScroll));const startRow=Math.max(0,Math.floor(camera/th)),endRow=Math.min(ROWS,startRow+visibleRows);
-const caveView=camera>=CAVE_START*th-ch*.18;
+const caveView=camera>=CAVE_START*th-ch*.6;
 if(caveView){ctx.fillStyle='#171b2b';ctx.fillRect(0,0,cw,ch);for(let x=0;x<cw;x+=tw){const hash=(Math.floor(x/tw)*37+11)%7;ctx.fillStyle=hash%2?'#22283a':'#1d2334';ctx.fillRect(x,0,tw,Math.min(ch,th*(1+hash%3)));ctx.fillStyle='#30354a';ctx.fillRect(x+tw*.25,Math.max(0,ch-th*(1+hash%4)),Math.max(2,tw*.5),th);}}
 else{drawPixelSky(cw,Math.max(0,th-camera));ctx.fillStyle='#6eac82';ctx.fillRect(0,Math.max(0,th-camera),cw,Math.max(0,ch-(th-camera)));}
 for(let y=startRow;y<endRow;y++)for(let x=0;x<COLS;x++){const t=tileAt(x,y);if(!t)continue;const px=(cw-COLS*tw)/2+x*tw,py=y*th-camera;if(py<-th||py>ch)continue;drawTile(t,px,py,tw,th);}
