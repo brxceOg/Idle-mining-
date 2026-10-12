@@ -27,7 +27,7 @@ canvas{display:block;width:100%;height:min(62vh,560px);min-height:330px;backgrou
 .upgrade-overlay.open{display:flex}.upgrade-panel{width:min(100%,620px);max-height:100%;overflow:auto;background:#1b3028;border:2px solid #9ab66a;border-radius:12px;box-shadow:0 10px 40px #0009;padding:14px}
 .upgrade-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}.upgrade-title{font-size:clamp(20px,5vw,28px);font-weight:1000;color:#d8f19a}
 .upgrade-cash{color:#ffcf68;font-weight:900;font-size:14px;margin:8px 0 12px}.upgrade-tabs{display:flex;gap:8px;margin:0 0 12px}.upgrade-tab{flex:1;min-height:40px;border:1px solid #78945f;border-radius:6px;background:#263f30;color:#dce9cb;font:900 12px 'Silkscreen',ui-monospace,monospace}.upgrade-tab.active{background:#456638;border-color:#c8ed79;color:#fff4d3}.upgrade-grid{display:grid;grid-template-columns:1fr;gap:9px}
-.upgrade-card{border:1px solid #58765b;background:#223a2d;border-radius:8px;padding:11px}.upgrade-card h3{font-size:14px;margin:0 0 5px;color:#fff0c5}
+.upgrade-card{border:1px solid #58765b;background:#223a2d;border-radius:8px;padding:11px}.upgrade-card h3{display:flex;align-items:center;gap:7px;font-size:14px;margin:0 0 5px;color:#fff0c5}
 .upgrade-card p{font-size:11px;line-height:1.45;color:#c0d0b6;margin:4px 0 9px}.upgrade-meta{display:flex;justify-content:space-between;gap:8px;color:#d8e5c9;font-size:10px;margin-bottom:8px}
 .upgrade-buy{width:100%;min-height:39px;border:2px solid #9db96a;border-radius:6px;background:#456638;color:#fff4d3;font:900 12px 'Silkscreen',ui-monospace,monospace}.upgrade-buy:disabled{opacity:.45}
 .upgrade-close{border:1px solid #78945f;border-radius:6px;padding:8px 10px;background:#354f32;color:#fff3cf;font-weight:900}.upgrade-foot{font-size:10px;line-height:1.45;color:#a9c1a2;margin-top:11px}
@@ -62,6 +62,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 .layout>section>.world-head:last-of-type,.side>.panel,.hint{display:none}
 @media(min-width:760px){.app{padding:0}.layout{display:block}.layout>section.panel{inset:0}canvas{height:100%}.stats{right:auto;width:470px}.actions{left:12px;right:auto;width:272px;bottom:calc(env(safe-area-inset-bottom,0px) + 12px)}.mine-nav{left:12px;right:auto;width:272px;bottom:calc(env(safe-area-inset-bottom,0px) + 126px)}}
 
+/* Custom pixel-art sprite icons: shared palette, crisp edges, no emoji glyphs. */
+.sprite-library{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.ui-icon{display:inline-block;width:16px;height:16px;flex:0 0 16px;vertical-align:middle;shape-rendering:crispEdges;image-rendering:pixelated}
+.btn .ui-icon,.worker-btn .ui-icon,.upgrade-btn .ui-icon,.reset-save-btn .ui-icon{width:16px;height:16px}
+.btn,.worker-btn,.upgrade-btn,.reset-save-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.mine-title{display:inline-flex;align-items:center;gap:5px}
+.upgrade-card h3 .ui-icon{width:20px;height:20px;flex-basis:20px}
 /* Neutral pixel-art UI frames: crisp square corners, pale-grey highlights, dark stepped edges. */
 :root{--ui-frame:#c5cbc7;--ui-frame-shadow:#59625d;--ui-frame-dark:#29342e}
 .stat,.pill,.world-head,.nav-btn,.btn,.reset-save-btn,.worker-btn,.upgrade-btn,
@@ -211,9 +218,38 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 </style>
 </head>
 <body>
+<svg class="sprite-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+ <defs>
+  <g id="sprite-worker" shape-rendering="crispEdges">
+   <rect x="4" y="1" width="8" height="2" fill="#e6c66d"/><rect x="3" y="3" width="10" height="2" fill="#f3d879"/><rect x="5" y="5" width="6" height="1" fill="#b98543"/>
+   <rect x="5" y="6" width="6" height="4" fill="#e8b17c"/><rect x="4" y="7" width="2" height="2" fill="#e8b17c"/><rect x="10" y="7" width="2" height="2" fill="#e8b17c"/>
+   <rect x="9" y="7" width="1" height="1" fill="#24251e"/><rect x="4" y="10" width="8" height="4" fill="#4777b5"/><rect x="5" y="11" width="6" height="1" fill="#d5d8c8"/>
+   <rect x="5" y="14" width="2" height="2" fill="#5c3c28"/><rect x="9" y="14" width="2" height="2" fill="#5c3c28"/><rect x="2" y="15" width="4" height="1" fill="#3c3024"/><rect x="10" y="15" width="4" height="1" fill="#3c3024"/>
+  </g>
+  <g id="sprite-pickaxe" shape-rendering="crispEdges">
+   <path d="M3 13L11 5L13 7L5 15Z" fill="#b98543"/><path d="M2 4L5 1L10 1L14 5L12 7L9 4L6 4L4 6Z" fill="#c5cbc7"/><path d="M2 4L5 1L7 1L4 5Z" fill="#f8edcf"/><rect x="10" y="4" width="3" height="2" fill="#78837b"/>
+  </g>
+  <g id="sprite-upgrade" shape-rendering="crispEdges">
+   <rect x="7" y="7" width="3" height="8" fill="#d8e0d8"/><rect x="4" y="7" width="3" height="3" fill="#d8e0d8"/><rect x="10" y="7" width="3" height="3" fill="#d8e0d8"/><rect x="6" y="4" width="5" height="3" fill="#f3d879"/><rect x="7" y="1" width="3" height="3" fill="#f3d879"/><rect x="4" y="3" width="3" height="2" fill="#f3d879"/><rect x="10" y="3" width="3" height="2" fill="#f3d879"/>
+  </g>
+  <g id="sprite-lightning" shape-rendering="crispEdges">
+   <path d="M9 0L3 9H7L5 16L13 6H9Z" fill="#f3d879"/><path d="M9 2L5 8H8L7 12L11 6H8Z" fill="#fff3bf"/>
+  </g>
+  <g id="sprite-gem" shape-rendering="crispEdges">
+   <path d="M4 1H12L15 5L8 15L1 5Z" fill="#70cbd0"/><path d="M4 1H8V5H1Z" fill="#b4f3ef"/><path d="M8 5H15L8 15Z" fill="#3c8d9c"/><path d="M4 1L1 5H8L12 1Z" fill="#d7fbf1"/><rect x="7" y="6" width="2" height="2" fill="#d7fbf1"/>
+  </g>
+  <g id="sprite-crew" shape-rendering="crispEdges">
+   <rect x="2" y="2" width="5" height="2" fill="#f3d879"/><rect x="1" y="4" width="7" height="2" fill="#e6c66d"/><rect x="3" y="6" width="4" height="3" fill="#e8b17c"/><rect x="2" y="9" width="6" height="4" fill="#4777b5"/><rect x="2" y="13" width="2" height="3" fill="#5c3c28"/><rect x="6" y="13" width="2" height="3" fill="#5c3c28"/>
+   <rect x="9" y="1" width="5" height="2" fill="#f3d879"/><rect x="8" y="3" width="7" height="2" fill="#e6c66d"/><rect x="10" y="5" width="4" height="4" fill="#e8b17c"/><rect x="9" y="9" width="6" height="4" fill="#6da1d5"/><rect x="9" y="13" width="2" height="3" fill="#5c3c28"/><rect x="13" y="13" width="2" height="3" fill="#5c3c28"/>
+  </g>
+  <g id="sprite-play" shape-rendering="crispEdges"><path d="M3 1H6V3H9V5H12V7H15V9H12V11H9V13H6V15H3Z" fill="#f8edcf"/><path d="M5 4H7V6H10V8H13V8H10V10H7V12H5Z" fill="#c8ed79"/></g>
+  <g id="sprite-stop" shape-rendering="crispEdges"><rect x="2" y="2" width="12" height="12" fill="#f8edcf"/><rect x="4" y="4" width="8" height="8" fill="#ba7860"/></g>
+  <g id="sprite-reset" shape-rendering="crispEdges"><path d="M4 4V1L1 5L4 8V6H10V4Z" fill="#f8edcf"/><path d="M5 2H11V4H13V11H11V13H4V11H2V9H4V11H11V4H5Z" fill="#f8edcf"/><rect x="6" y="6" width="3" height="3" fill="#e6c66d"/></g>
+ </defs>
+</svg>
 <div class="app">
-<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button">↺ RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
-<div class="bottom-menu-buttons"><button class="worker-btn" id="workersOpen" type="button">👷 WORKERS</button><button class="upgrade-btn" id="upgradeOpen" type="button">⬆ UPGRADES</button></div>
+<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-reset"></use></svg> RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
+<div class="bottom-menu-buttons"><button class="worker-btn" id="workersOpen" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-worker"></use></svg> WORKERS</button><button class="upgrade-btn" id="upgradeOpen" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-upgrade"></use></svg> UPGRADES</button></div>
 <div class="stats">
  <div class="stat"><div class="label">Cash</div><div class="value" id="cash">$0</div><div class="sub" id="runCash">$0 earned this run</div></div>
  <div class="stat"><div class="label">Depth</div><div class="value" id="depth">0 m</div><div class="sub">Best: <span id="bestDepth">0 m</span></div></div>
@@ -221,13 +257,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 </div>
 <div class="layout">
  <section class="panel">
-  <div class="world-head"><span>⛏ PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
+  <div class="world-head"><span class="mine-title"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-pickaxe"></use></svg> PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
   <canvas id="world" aria-label="Pixel-art mining world"></canvas>
   <div class="mine-nav" aria-label="Mine map navigation"><button class="nav-btn" id="scrollUp" type="button" aria-label="Scroll mine upward">▲</button><button class="nav-btn" id="scrollDown" type="button" aria-label="Scroll mine downward">▼</button></div>
   <div class="world-head"><span>Use the controls to explore vertically.</span><span id="tileReadout">32px tiles</span></div>
  </section>
  <aside class="side">
-  <div class="actions"><button class="btn" id="startBtn">▶ START MINING</button><button class="btn stop" id="stopBtn" disabled>■ STOP & RESET</button></div>
+  <div class="actions"><button class="btn" id="startBtn"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-play"></use></svg> START MINING</button><button class="btn stop" id="stopBtn" disabled><svg class="ui-icon" aria-hidden="true"><use href="#sprite-stop"></use></svg> STOP & RESET</button></div>
   <div class="panel"><div class="world-head"><strong>FIELD NOTES</strong><span class="pill">AUTO-SELL</span></div><div class="log" id="log"><div>Welcome to the Plains. Your worker is taking a look around.</div></div></div>
   <div class="panel"><div class="world-head"><strong>HOW TO PLAY</strong></div><div class="log">Start a run to send your workers underground. Each miner works its own column. Dirt earns $1, stone earns $2, and ore rewards increase with depth. Stop whenever you want: cash is kept and excavated terrain is restored.</div></div>
  </aside>
@@ -285,26 +321,27 @@ function resetRunTerrain(){state.terrain=makeTerrain();treeFalls=[];state.worker
 function solid(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return true;return !!state.terrain[y][x];}
 function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terrain[y][x];}
 const upgradeDefs={
- miningPower:{name:'Mining Power',icon:'⚒',description:'Deal more damage with every pickaxe hit, breaking tough blocks faster.',base:25,growth:1.8,effect:l=>'+'+l+' damage per hit',max:10},
- swingSpeed:{name:'Swing Speed',icon:'⚡',description:'Swing more often so every block takes less time to break.',base:35,growth:1.85,effect:l=>Math.round((1-Math.max(.35,Math.pow(.88,l)))*100)+'% faster swings',max:10},
- resourceDetection:{name:'Resource Detection',icon:'◇',description:'Plan a mining route through nearby blocks toward valuable ore. Higher levels scout farther ahead and make smarter route choices.',base:60,growth:2,effect:l=>'Plans routes '+(6+l*5)+' rows ahead',max:8},
+ miningPower:{name:'Mining Power',icon:'pickaxe',description:'Deal more damage with every pickaxe hit, breaking tough blocks faster.',base:25,growth:1.8,effect:l=>'+'+l+' damage per hit',max:10},
+ swingSpeed:{name:'Swing Speed',icon:'lightning',description:'Swing more often so every block takes less time to break.',base:35,growth:1.85,effect:l=>Math.round((1-Math.max(.35,Math.pow(.88,l)))*100)+'% faster swings',max:10},
+ resourceDetection:{name:'Resource Detection',icon:'gem',description:'Plan a mining route through nearby blocks toward valuable ore. Higher levels scout farther ahead and make smarter route choices.',base:60,growth:2,effect:l=>'Plans routes '+(6+l*5)+' rows ahead',max:8},
 };
 function upgradeCost(key){const d=upgradeDefs[key];return Math.floor(d.base*Math.pow(d.growth,state.upgrades[key]||0));}
+function uiIcon(name){return '<svg class="ui-icon" aria-hidden="true" viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#sprite-'+name+'"></use></svg>';}
 function renderUpgrades(){
  const grid=$('upgradeGrid');if(!grid)return;
  $('upgradeCash').textContent='Available cash: $'+Math.floor(state.cash).toLocaleString();
  $('upgradeTitle').textContent=upgradeView==='workers'?'WORKERS':'MINER UPGRADES';
  if(upgradeView==='upgrades'){
   $('upgradeFoot').textContent='Upgrades are permanent and remain after stopping a run. Resource Detection gives miners active route planning toward valuable deposits instead of only choosing a starting column.';
-  grid.innerHTML=Object.keys(upgradeDefs).map(key=>{const d=upgradeDefs[key],level=state.upgrades[key]||0,cost=upgradeCost(key),maxed=level>=d.max;return '<article class="upgrade-card"><h3>'+d.icon+' '+d.name+'</h3><div class="upgrade-meta"><span>LEVEL '+level+' / '+d.max+'</span><span>'+(maxed?'MAX LEVEL':d.effect(level))+'</span></div><p>'+d.description+'</p><button class="upgrade-buy" type="button" data-upgrade="'+key+'" '+(maxed||state.cash<cost?'disabled':'')+'>'+(maxed?'✓ MAXED':'BUY · $'+cost.toLocaleString())+'</button></article>';}).join('');
+  grid.innerHTML=Object.keys(upgradeDefs).map(key=>{const d=upgradeDefs[key],level=state.upgrades[key]||0,cost=upgradeCost(key),maxed=level>=d.max;return '<article class="upgrade-card"><h3>'+uiIcon(d.icon)+d.name+'</h3><div class="upgrade-meta"><span>LEVEL '+level+' / '+d.max+'</span><span>'+(maxed?'MAX LEVEL':d.effect(level))+'</span></div><p>'+d.description+'</p><button class="upgrade-buy" type="button" data-upgrade="'+key+'" '+(maxed||state.cash<cost?'disabled':'')+'>'+(maxed?'✓ MAXED':'BUY · $'+cost.toLocaleString())+'</button></article>';}).join('');
   grid.querySelectorAll('[data-upgrade]').forEach(btn=>btn.addEventListener('click',()=>buyUpgrade(btn.dataset.upgrade)));
   return;
  }
  const nextCost=workerCost();
  $('upgradeFoot').textContent='Hire prices increase with each purchase. Workers and their ownership are saved between runs. Group Focus affects the next run, clustering your crew around one area.';
- grid.innerHTML='<article class="upgrade-card"><h3>⛏ Standard Miner</h3><div class="upgrade-meta"><span>OWNED: '+state.workerCount+' / 24</span><span>TYPE: STANDARD</span></div><p>A dependable autonomous miner. Each worker mines its own column and earns cash through the existing material economy.</p><button class="upgrade-buy" id="hireWorkerBtn" type="button" '+(state.cash<nextCost||state.workerCount>=24?'disabled':'')+'>'+(state.workerCount>=24?'MAX CREW SIZE':'HIRE MINER · $'+nextCost.toLocaleString())+'</button></article>';
- grid.innerHTML+='<article class="upgrade-card"><h3>⚑ Crew Formation</h3><div class="upgrade-meta"><span>'+(state.groupedMode?'GROUP FOCUS ON':'INDEPENDENT MODE')+'</span><span>NO COST</span></div><p>'+(state.groupedMode?'Workers will start close together and focus one area on the next run.':'Workers will choose separate columns on the next run. Toggle to cluster them around one area.')+'</p><button class="upgrade-buy" id="groupWorkersBtn" type="button">'+(state.groupedMode?'DISABLE GROUP FOCUS':'GROUP WORKERS')+'</button></article>';
- grid.innerHTML+='<article class="upgrade-card"><h3>👷 Worker Roster</h3><div class="upgrade-meta"><span>'+state.workerCount+' ACTIVE WORKER'+(state.workerCount===1?'':'S')+'</span><span>STANDARD CLASS</span></div><p>All owned workers mine independently during a run. Different miner classes can be added later without replacing the worker system.</p></article>';
+ grid.innerHTML='<article class="upgrade-card"><h3>'+uiIcon('pickaxe')+'Standard Miner</h3><div class="upgrade-meta"><span>OWNED: '+state.workerCount+' / 24</span><span>TYPE: STANDARD</span></div><p>A dependable autonomous miner. Each worker mines its own column and earns cash through the existing material economy.</p><button class="upgrade-buy" id="hireWorkerBtn" type="button" '+(state.cash<nextCost||state.workerCount>=24?'disabled':'')+'>'+(state.workerCount>=24?'MAX CREW SIZE':'HIRE MINER · $'+nextCost.toLocaleString())+'</button></article>';
+ grid.innerHTML+='<article class="upgrade-card"><h3>'+uiIcon('crew')+'Crew Formation</h3><div class="upgrade-meta"><span>'+(state.groupedMode?'GROUP FOCUS ON':'INDEPENDENT MODE')+'</span><span>NO COST</span></div><p>'+(state.groupedMode?'Workers will start close together and focus one area on the next run.':'Workers will choose separate columns on the next run. Toggle to cluster them around one area.')+'</p><button class="upgrade-buy" id="groupWorkersBtn" type="button">'+(state.groupedMode?'DISABLE GROUP FOCUS':'GROUP WORKERS')+'</button></article>';
+ grid.innerHTML+='<article class="upgrade-card"><h3>'+uiIcon('worker')+'Worker Roster</h3><div class="upgrade-meta"><span>'+state.workerCount+' ACTIVE WORKER'+(state.workerCount===1?'':'S')+'</span><span>STANDARD CLASS</span></div><p>All owned workers mine independently during a run. Different miner classes can be added later without replacing the worker system.</p></article>';
  $('hireWorkerBtn').addEventListener('click',hireWorker);
  $('groupWorkersBtn').addEventListener('click',()=>{state.groupedMode=!state.groupedMode;syncWorkers();note(state.groupedMode?'Group Focus enabled: workers will stay closer together and focus one area.':'Independent Mode enabled: workers will spread out across the surface and choose separate columns.');save();renderUpgrades();draw();});
 }
