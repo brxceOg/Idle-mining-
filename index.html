@@ -104,8 +104,20 @@ const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
 let state={cash:0,bestDepth:0,lifetime:0,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
 let upgradeView='upgrades';
-// Surface trees are lightweight scenery; falling state is transient and resets with each fresh run.
-const TREE_COLUMNS=[3,7,11,17,21,25];
+// Surface trees are lightweight scenery; placements are deterministic so the world feels natural without flicker.
+// Small clusters alternate with isolated trees and intentionally open stretches of grass.
+function surfaceTreeColumns(){
+ const placements=[],clusters=[{start:1,count:3},{start:7,count:1},{start:12,count:2},{start:19,count:3},{start:26,count:1}];
+ for(const group of clusters){
+  for(let i=0;i<group.count;i++){
+   const x=group.start+i;
+   if(x>0&&x<COLS-1)placements.push(x);
+  }
+ }
+ return placements;
+}
+const TREE_COLUMNS=surfaceTreeColumns();
+function isTreeColumn(x){return TREE_COLUMNS.includes(x);}
 let treeFalls=[];
 function createWorker(id){return {id,type:'standard',x:COLS/2,y:.15,tx:COLS/2,ty:.15,mode:'wander',target:null,routeX:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
 function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;const n=state.workers.length;state.workers.forEach((w,i)=>{w.homeX=state.groupedMode?Math.max(2,Math.min(COLS-3,COLS/2+(i-(n-1)/2)*1.2)):(n===1?COLS/2:2+(i*(COLS-5)/(n-1)));if(!state.active&&w.mode==='wander')w.x=w.homeX;});state.worker=state.workers[0]||null;}
@@ -243,7 +255,7 @@ function tickWorker(dt){
   w.progress-=hitEvery;t.hp-=1+(state.upgrades.miningPower||0);w.walk+=dt;
   if(t.hp<=0){
    const type=t.type,val=mats[type].value;
-   if(ty===1&&type==='grass'&&TREE_COLUMNS.includes(tx))treeFalls.push({x:tx,direction:tx<COLS/2?-1:1,start:performance.now(),duration:620});
+   if(ty===1&&type==='grass'&&isTreeColumn(tx))treeFalls.push({x:tx,direction:tx<COLS/2?-1:1,start:performance.now(),duration:620});
    state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;
    state.bestDepth=Math.max(state.bestDepth,Math.max(0,Math.floor((w.y-1)*TILE/32)));
    w.routeX=tx!==Math.round(w.x)?tx:null;w.target=null;w.progress=0;
@@ -382,6 +394,38 @@ function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
  ctx.fillStyle=variant===3?'#76503a':'#70452c';
  ctx.fillRect((variant===2?-2:-3)*scale,-treeHeight*(variant===2?1.42:1.55),(variant===2?4:6)*scale,treeHeight*(variant===2?1.42:1.55));
  ctx.fillStyle='#95603a';ctx.fillRect(-1*scale,-treeHeight*1.48,2*scale,treeHeight*1.3);
+ // Distinct bark markings are placed on the exposed lower trunk so each tree has its own wood grain.
+ const barkPattern=(Math.floor(seed*17+11)%5+5)%5;
+ ctx.fillStyle=variant===3?'#4c5b30':'#503321';
+ if(barkPattern===0){
+  ctx.fillRect(-2.2*scale,-treeHeight*.61,1*scale,treeHeight*.12);
+  ctx.fillRect(.5*scale,-treeHeight*.39,1*scale,treeHeight*.09);
+ }else if(barkPattern===1){
+  ctx.fillRect(-1.5*scale,-treeHeight*.58,1*scale,treeHeight*.22);
+  ctx.fillRect(.5*scale,-treeHeight*.27,1*scale,treeHeight*.12);
+ }else if(barkPattern===2){
+  ctx.fillRect(-2*scale,-treeHeight*.46,1*scale,treeHeight*.08);
+  ctx.fillRect(.7*scale,-treeHeight*.52,1*scale,treeHeight*.07);
+  ctx.fillStyle='#c18a53';ctx.fillRect(-.5*scale,-treeHeight*.32,1*scale,treeHeight*.10);
+ }else if(barkPattern===3){
+  ctx.fillRect(-1.8*scale,-treeHeight*.35,1*scale,treeHeight*.15);
+  ctx.fillRect(.5*scale,-treeHeight*.62,1*scale,treeHeight*.11);
+  ctx.fillStyle='#c18a53';ctx.fillRect(-.5*scale,-treeHeight*.48,1*scale,treeHeight*.08);
+ }else{
+  ctx.fillRect(-2*scale,-treeHeight*.55,1*scale,treeHeight*.06);
+  ctx.fillRect(1*scale,-treeHeight*.43,1*scale,treeHeight*.16);
+ }
+ // A tiny knot or scar gives the trunk a second recognizable detail.
+ if(barkPattern===2||barkPattern===4){
+  ctx.fillStyle='#4a2d20';ctx.fillRect(-.5*scale,-treeHeight*.19,2*scale,2*scale);
+  ctx.fillStyle='#c18a53';ctx.fillRect(-.1*scale,-treeHeight*.18,1*scale,1*scale);
+ }
+ // The canopy and boughs sway together very slightly; the trunk stays rooted.
+ ctx.save();
+ const swayPhase=performance.now()/1000*.85+seed*1.37;
+ ctx.translate(0,-treeHeight*.9);
+ ctx.rotate(Math.sin(swayPhase)*.018);
+ ctx.translate(0,treeHeight*.9);
  if(variant===0){
   // Classic layered evergreen.
   ctx.fillStyle='#2f713d';ctx.fillRect(-8*scale,-treeHeight*1.62,16*scale,treeHeight*.22);
@@ -430,7 +474,8 @@ function drawPixelTree(baseX,baseY,tw,th,direction,progress,standing,seed){
    ctx.fillRect(side<0?-len*.48*scale:len*.34*scale,y-treeHeight*.10,len*.25*scale,Math.max(1*scale,treeHeight*.045));
   }
  }
- // Tiny bark/leaf pixels add variation without leaving the established palette.
+ ctx.restore();
+ // Tiny leaf highlights add variation without leaving the established palette.
  ctx.fillStyle='#b0d96b';ctx.fillRect((-6+(seed%3))*scale,-treeHeight*(variant===2?1.86:1.48),3*scale,treeHeight*.10);
  ctx.fillStyle=variant===3?'#c0a06a':'#d8b078';
  if(!standing)ctx.fillRect(-3*scale,-treeHeight*1.55,6*scale,2*scale);
