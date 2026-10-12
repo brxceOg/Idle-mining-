@@ -264,8 +264,13 @@ function drawPixelSky(cw,skyBottom){
   {x:.68,y:.61,w:.7,h:.58}
  ];
  const cell=12;
+ const time=performance.now()/1000;
  for(let c=0;c<clouds.length;c++){
-  const cloud=clouds[c],cx=cw*cloud.x,cy=skyH*cloud.y;
+  const cloud=clouds[c];
+  // Slow, staggered drift and a tiny vertical bob make the sky feel alive.
+  // Movement is smooth and deterministic, so cloud pixels never flicker.
+  const cx=cw*cloud.x+Math.sin(time*(.12+c*.018)+c*1.7)*cw*.018;
+  const cy=skyH*cloud.y+Math.sin(time*.65+c*1.9)*4;
   const rx=Math.max(4,cw*.105*cloud.w),ry=Math.max(3,Math.min(30,skyH*.14)*cloud.h);
   const cols=Math.ceil(rx/cell),rows=Math.ceil(ry/cell);
   for(let gy=-rows;gy<=rows;gy++)for(let gx=-cols;gx<=cols;gx++){
