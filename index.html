@@ -110,6 +110,12 @@ if(!options.length){w.mode='stuck';return null;}
 options.sort((a,b)=>{const value=mats[b.t.type].value-mats[a.t.type].value;return value*.02+(a.y-b.y)*.025+(a.score-b.score);});
 return options[0];}
 function tick(dt){const w=state.worker;if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+Math.sin(performance.now()/1500)*1.8;w.y=0.15+Math.abs(Math.sin(performance.now()/800))*.05;return;}
+// Walk across the surface to the chosen starting column before mining.
+if(w.mode==='approach'){
+const dx=w.startX-w.x;
+if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*1.8);return;}
+w.x=w.startX;w.mode='mine';
+}
 // Fall into cleared space instead of walking through solid terrain.
 if(!solid(Math.floor(w.x),Math.floor(w.y)+1)){w.target=null;w.mode='fall';w.y=Math.min(ROWS-2,w.y+dt*2.4);return;}
 if(!w.target||!tileAt(w.target.x,w.target.y)){w.target=chooseTarget();w.progress=0;if(!w.target){w.mode='stuck';return;}}
@@ -150,7 +156,7 @@ function drawWorker(x,y,w,h,mode){
 }
 function save(){try{const data={cash:state.cash,bestDepth:state.bestDepth,lifetime:state.lifetime,lastSave:Date.now()};localStorage.setItem(SAVE_KEY,JSON.stringify(data));$('saveStatus').textContent='● SAVED';}catch(e){$('saveStatus').textContent='● SAVE UNAVAILABLE';}}
 function load(){try{const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');state.cash=Math.max(0,Number(d.cash)||0);state.bestDepth=Math.max(0,Number(d.bestDepth)||0);state.lifetime=Math.max(0,Number(d.lifetime)||0);}catch(e){}}
-$('startBtn').addEventListener('click',()=>{if(state.active)return;state.active=true;state.runStart=Date.now();state.runCash=0;state.worker.x=Math.floor(rand(2,COLS-2));state.worker.y=0.15;state.worker.target=null;state.worker.progress=0;state.worker.mode='mine';$('runState').textContent='● MINING';$('runState').className='live';$('startBtn').disabled=true;$('stopBtn').disabled=false;note('Mining started. Your worker is heading underground.');save();});
+$('startBtn').addEventListener('click',()=>{if(state.active)return;state.active=true;state.runStart=Date.now();state.runCash=0;state.worker.startX=Math.floor(rand(2,COLS-2));state.worker.y=0.15;state.worker.target=null;state.worker.progress=0;state.worker.mode='approach';$('runState').textContent='● MINING';$('runState').className='live';$('startBtn').disabled=true;$('stopBtn').disabled=false;note('Mining started. Your worker is heading underground.');save();});
 $('stopBtn').addEventListener('click',()=>{if(!state.active)return;if(confirm('Stop this run and restore the excavated terrain? Your cash and best depth will be kept.'))resetRunTerrain();});
 function scrollMine(direction){const max=Math.max(0,ROWS*TILE-state.cameraY-canvas.clientHeight);state.manualScroll=Math.max(0,Math.min(max,state.manualScroll+direction*TILE*4));draw();}
 $('scrollUp').addEventListener('click',()=>scrollMine(-1));$('scrollDown').addEventListener('click',()=>scrollMine(1));
