@@ -104,8 +104,8 @@ const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
 let state={cash:0,bestDepth:0,lifetime:0,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0,movementSpeed:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
 let upgradeView='upgrades';
-function createWorker(id){return {id,type:'standard',x:COLS/2+(id-1)*.8,y:.15,tx:COLS/2,ty:.15,mode:'wander',target:null,progress:0,walk:0,startX:COLS/2,facing:1};}
-function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;state.worker=state.workers[0]||null;}
+function createWorker(id){return {id,type:'standard',x:COLS/2,y:.15,tx:COLS/2,ty:.15,mode:'wander',target:null,progress:0,walk:0,startX:COLS/2,homeX:COLS/2,facing:1};}
+function syncWorkers(){while(state.workers.length<state.workerCount)state.workers.push(createWorker(state.workers.length+1));if(state.workers.length>state.workerCount)state.workers.length=state.workerCount;const n=state.workers.length;state.workers.forEach((w,i)=>{w.homeX=state.groupedMode?Math.max(2,Math.min(COLS-3,COLS/2+(i-(n-1)/2)*1.2)):(n===1?COLS/2:2+(i*(COLS-5)/(n-1)));if(!state.active&&w.mode==='wander')w.x=w.homeX;});state.worker=state.workers[0]||null;}
 let lastTick=performance.now(),lastRender=0,logItems=[];
 function note(s){logItems.unshift(s);logItems=logItems.slice(0,8);$('log').innerHTML=logItems.map(t=>'<div>'+escapeHtml(t)+'</div>').join('');}
 function escapeHtml(s){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -143,7 +143,7 @@ function renderUpgrades(){
  grid.innerHTML+='<article class="upgrade-card"><h3>⚑ Crew Formation</h3><div class="upgrade-meta"><span>'+(state.groupedMode?'GROUP FOCUS ON':'INDEPENDENT MODE')+'</span><span>NO COST</span></div><p>'+(state.groupedMode?'Workers will start close together and focus one area on the next run.':'Workers will choose separate columns on the next run. Toggle to cluster them around one area.')+'</p><button class="upgrade-buy" id="groupWorkersBtn" type="button">'+(state.groupedMode?'DISABLE GROUP FOCUS':'GROUP WORKERS')+'</button></article>';
  grid.innerHTML+='<article class="upgrade-card"><h3>👷 Worker Roster</h3><div class="upgrade-meta"><span>'+state.workerCount+' ACTIVE WORKER'+(state.workerCount===1?'':'S')+'</span><span>STANDARD CLASS</span></div><p>All owned workers mine independently during a run. Different miner classes can be added later without replacing the worker system.</p></article>';
  $('hireWorkerBtn').addEventListener('click',hireWorker);
- $('groupWorkersBtn').addEventListener('click',()=>{state.groupedMode=!state.groupedMode;note(state.groupedMode?'Group Focus enabled for the next run.':'Independent mining enabled for the next run.');save();renderUpgrades();});
+ $('groupWorkersBtn').addEventListener('click',()=>{state.groupedMode=!state.groupedMode;syncWorkers();note(state.groupedMode?'Group Focus enabled: workers will stay closer together and focus one area.':'Independent Mode enabled: workers will spread out across the surface and choose separate columns.');save();renderUpgrades();draw();});
 }
 function workerCost(){return Math.floor(50*Math.pow(1.65,Math.max(0,state.workerCount-1)));}
 function hireWorker(){const cost=workerCost();if(state.cash<cost||state.workerCount>=24)return;state.cash-=cost;state.workerCount++;syncWorkers();const worker=state.workers[state.workers.length-1];if(state.active){const used=new Set(state.workers.slice(0,-1).map(w=>w.startX));const choices=[];for(let x=2;x<COLS-2;x++)if(!used.has(x))choices.push(x);const focus=scanStartingColumn();worker.startX=choices.length?choices[Math.floor(Math.random()*choices.length)]:Math.floor(rand(2,COLS-2));worker.x=COLS/2;worker.y=.15;worker.target=null;worker.progress=0;worker.mode='approach';}note('Hired a standard miner. Crew size: '+state.workerCount+'.');save();renderUpgrades();draw();}
@@ -173,7 +173,7 @@ function chooseTarget(){
 }
 function tickWorker(dt){
  const w=state.worker;if(!w)return;
- if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';w.x=COLS/2+(w.id-1)*.8+Math.sin(performance.now()/1500+w.id)*.25;w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
+ if(!state.active){w.walk+=dt;if(w.mode!=='wander')w.mode='wander';const home=w.homeX==null?COLS/2:w.homeX;const wanderRange=state.groupedMode?0.55:1.65;w.x=Math.max(1,Math.min(COLS-2,home+Math.sin(performance.now()/1500+w.id*2.37)*wanderRange));w.y=0.15+Math.abs(Math.sin(performance.now()/800+w.id))*.05;return;}
  if(w.mode==='approach'){
   const dx=w.startX-w.x;
   if(Math.abs(dx)>.035){w.mode='walk';w.walk+=dt;w.x+=Math.sign(dx)*Math.min(Math.abs(dx),dt*(1.8+(state.upgrades.movementSpeed||0)*.45));return;}
