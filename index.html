@@ -336,7 +336,7 @@ function drawSurfaceDetails(cw,tw,th,camera){
    const left=offset+x*tw;
    for(let tuft=0;tuft<3;tuft++){
     const phase=time*(1.45+tuft*.16)+x*1.71+tuft*2.4;
-    const bladeX=left+tw*(.18+tuft*.29),bladeY=surfaceY+th*.12;
+    const bladeX=left+tw*(.18+tuft*.29),bladeY=surfaceY-4*scale;
     const sway=Math.sin(phase)*2.1*scale;
     ctx.fillStyle=tuft===1?'#d1e67d':(tuft===0?'#477e3e':'#8bc85a');
     ctx.fillRect(Math.round(bladeX+sway),Math.round(bladeY),Math.max(1,2*scale),Math.max(2,(3+Math.sin(phase+1)*1.2)*scale));
