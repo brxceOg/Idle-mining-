@@ -124,20 +124,11 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
  font-size:9px!important;
 }
 
-/* Give the bottom-right upgrades button breathing room from the screen edges and control panel. */
+/* Keep the upgrades button in the bottom-right, with clear separation from the bottom-left controls. */
 .upgrade-btn{
  left:auto!important;
- right:20px!important;
- bottom:calc(env(safe-area-inset-bottom,0px) + 26px)!important;
- padding:9px 11px!important;
-}
-@media(max-width:380px){
- .upgrade-btn{
-  right:16px!important;
-  bottom:calc(env(safe-area-inset-bottom,0px) + 24px)!important;
-  padding:7px 7px!important;
-  font-size:8px!important;
- }
+ right:12px!important;
+ bottom:calc(env(safe-area-inset-bottom,0px) + 14px)!important;
 }
 
 </style>
