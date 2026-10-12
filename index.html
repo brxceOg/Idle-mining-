@@ -248,8 +248,8 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
  </defs>
 </svg>
 <div class="app">
-<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-reset"></use></svg> RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
-<div class="bottom-menu-buttons"><button class="worker-btn" id="workersOpen" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-worker"></use></svg> WORKERS</button><button class="upgrade-btn" id="upgradeOpen" type="button"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-upgrade"></use></svg> UPGRADES</button></div>
+<header><div><div class="brand">IDLE <span>MINING</span></div><div class="tag">PLAINS FIELD TEST · PHASE 1</div></div><div class="header-right"><button class="reset-save-btn" id="resetSaveBtn" type="button"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-reset"></use></svg> RESET</button><div class="pill" id="saveStatus">● LOCAL SAVE READY</div></div></header>
+<div class="bottom-menu-buttons"><button class="worker-btn" id="workersOpen" type="button"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-worker"></use></svg> WORKERS</button><button class="upgrade-btn" id="upgradeOpen" type="button"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-upgrade"></use></svg> UPGRADES</button></div>
 <div class="stats">
  <div class="stat"><div class="label">Cash</div><div class="value" id="cash">$0</div><div class="sub" id="runCash">$0 earned this run</div></div>
  <div class="stat"><div class="label">Depth</div><div class="value" id="depth">0 m</div><div class="sub">Best: <span id="bestDepth">0 m</span></div></div>
@@ -257,13 +257,13 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
 </div>
 <div class="layout">
  <section class="panel">
-  <div class="world-head"><span class="mine-title"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-pickaxe"></use></svg> PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
+  <div class="world-head"><span class="mine-title"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-pickaxe"></use></svg> PLAINS MINE</span><span class="live" id="runState">● IDLE</span><span id="materialReadout">Dirt · $0</span></div>
   <canvas id="world" aria-label="Pixel-art mining world"></canvas>
   <div class="mine-nav" aria-label="Mine map navigation"><button class="nav-btn" id="scrollUp" type="button" aria-label="Scroll mine upward">▲</button><button class="nav-btn" id="scrollDown" type="button" aria-label="Scroll mine downward">▼</button></div>
   <div class="world-head"><span>Use the controls to explore vertically.</span><span id="tileReadout">32px tiles</span></div>
  </section>
  <aside class="side">
-  <div class="actions"><button class="btn" id="startBtn"><svg class="ui-icon" aria-hidden="true"><use href="#sprite-play"></use></svg> START MINING</button><button class="btn stop" id="stopBtn" disabled><svg class="ui-icon" aria-hidden="true"><use href="#sprite-stop"></use></svg> STOP & RESET</button></div>
+  <div class="actions"><button class="btn" id="startBtn"><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-play"></use></svg> START MINING</button><button class="btn stop" id="stopBtn" disabled><svg class="ui-icon" viewBox="0 0 16 16" aria-hidden="true"><use href="#sprite-stop"></use></svg> STOP & RESET</button></div>
   <div class="panel"><div class="world-head"><strong>FIELD NOTES</strong><span class="pill">AUTO-SELL</span></div><div class="log" id="log"><div>Welcome to the Plains. Your worker is taking a look around.</div></div></div>
   <div class="panel"><div class="world-head"><strong>HOW TO PLAY</strong></div><div class="log">Start a run to send your workers underground. Each miner works its own column. Dirt earns $1, stone earns $2, and ore rewards increase with depth. Stop whenever you want: cash is kept and excavated terrain is restored.</div></div>
  </aside>
