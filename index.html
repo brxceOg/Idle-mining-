@@ -108,8 +108,7 @@ $('startBtn').addEventListener('click',()=>{if(state.active)return;state.active=
 $('stopBtn').addEventListener('click',()=>{if(!state.active)return;if(confirm('Stop this run and restore the excavated terrain? Your cash and best depth will be kept.'))resetRunTerrain();});
 function scrollMine(direction){const max=Math.max(0,ROWS*TILE-state.cameraY-canvas.clientHeight);state.manualScroll=Math.max(0,Math.min(max,state.manualScroll+direction*TILE*4));draw();}
 $('scrollUp').addEventListener('click',()=>scrollMine(-1));$('scrollDown').addEventListener('click',()=>scrollMine(1));
-let touchY=null;canvas.addEventListener('touchstart',e=>{touchY=e.touches[0].clientY;},{passive:true});canvas.addEventListener('touchmove',e=>{if(touchY===null)return;const y=e.touches[0].clientY;state.manualScroll=Math.max(0,Math.min(ROWS*TILE-state.cameraY-canvas.clientHeight,state.manualScroll+(touchY-y)));touchY=y;},{passive:true});canvas.addEventListener('touchend',()=>touchY=null);
-canvas.addEventListener('wheel',e=>{state.manualScroll=Math.max(0,Math.min(ROWS*TILE-state.cameraY-canvas.clientHeight,state.manualScroll+e.deltaY));},{passive:true});
+// Mine navigation is button-only on mobile and desktop. Dragging, swiping, and wheel input do not move the mine view.
 load();state.terrain=makeTerrain();resize();window.addEventListener('resize',resize);note('Plains survey complete. Break dirt to reach stone and ore deposits.');let autosave=0;
 function loop(now){const dt=Math.min(.1,(now-lastTick)/1000);lastTick=now;tick(dt);if(now-lastRender>33){draw();lastRender=now;}autosave+=dt;if(autosave>10){save();autosave=0;}requestAnimationFrame(loop);}
 requestAnimationFrame(loop);
