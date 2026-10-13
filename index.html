@@ -41,8 +41,8 @@ canvas{display:block;width:100%;height:min(62vh,560px);min-height:330px;backgrou
 .tree-legend{display:flex;flex-wrap:wrap;gap:10px;margin:-2px 0 10px;font-size:8px;color:#c0d0b6}.tree-legend span{display:flex;align-items:center;gap:5px}
 .legend-dot{display:inline-block;width:9px;height:9px;border:2px solid #87928b;background:#303c35}.legend-dot.available{background:#8da94b;border-color:#d8f19a}.legend-dot.purchased{background:#5cb9a4;border-color:#b5fff0}.legend-dot.locked{background:#303c35;border-color:#68746b}
 .skill-tree-viewport{height:min(65vh,650px);min-height:300px;overflow:auto;position:relative;border:2px solid #657c68;background:#111f19;touch-action:none;overscroll-behavior:contain;cursor:grab;scrollbar-color:#78945f #172a22;scrollbar-width:thin}
-.skill-tree-world{position:relative;width:1000px;height:760px;zoom:.88;background-color:#172820;background-image:radial-gradient(ellipse at 50% 48%,rgba(98,143,89,.12),transparent 56%),linear-gradient(rgba(144,174,131,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(144,174,131,.055) 1px,transparent 1px);background-size:auto,20px 20px,20px 20px}
-.skill-tree-lines{position:absolute;inset:0;width:1000px;height:760px;pointer-events:none}.skill-tree-lines path{fill:none;stroke:#66866a;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
+.skill-tree-world{position:relative;width:1000px;height:820px;zoom:.88;background-color:#172820;background-image:radial-gradient(ellipse at 50% 48%,rgba(98,143,89,.12),transparent 56%),linear-gradient(rgba(144,174,131,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(144,174,131,.055) 1px,transparent 1px);background-size:auto,20px 20px,20px 20px}
+.skill-tree-lines{position:absolute;inset:0;width:1000px;height:820px;pointer-events:none}.skill-tree-lines path{fill:none;stroke:#66866a;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
 .skill-node-slot{position:absolute;width:150px;min-height:82px;z-index:1}.skill-node{width:100%;min-height:82px;padding:6px;border:2px solid #778a72;background:#263d2e;color:#fff0c5;box-shadow:inset 2px 2px #ffffff14,inset -2px -2px #0004,0 3px #0a130e;display:flex;flex-direction:column;gap:3px}
 .skill-node.available{border-color:#d8f19a;background:#354b2d;box-shadow:0 0 9px #c8ed7930,inset 2px 2px #ffffff19,inset -2px -2px #0004,0 3px #0a130e}.skill-node.purchased{border-color:#83dfc6;background:#21483d}.skill-node.locked{filter:saturate(.45);opacity:.72}
 .skill-node h3{display:flex;align-items:center;gap:4px;font-size:9px;line-height:1.3;margin:0;color:#fff2c7}.skill-node .node-level{font-size:7px;color:#b9d5a8;display:flex;justify-content:space-between;gap:3px}.skill-node p{font-size:7px;line-height:1.3;color:#d0ddc6;margin:0;min-height:24px}.skill-node .upgrade-buy{min-height:24px;padding:3px;font-size:7px;margin-top:auto}
@@ -286,7 +286,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
   <div class="panel"><div class="world-head"><strong>HOW TO PLAY</strong></div><div class="log">Start a run to send your workers underground. Each miner works its own column. Dirt earns $1, stone earns $2, and ore rewards increase with depth. Stop whenever you want: cash is kept and excavated terrain is restored.</div></div>
  </aside>
 </div>
-<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel skill-tree-view"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER SKILL TREE</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="tree-legend"><span><i class="legend-dot available"></i> AVAILABLE</span><span><i class="legend-dot purchased"></i> LEARNED</span><span><i class="legend-dot locked"></i> LOCKED</span></div><div class="skill-tree-viewport" id="skillTreeViewport" aria-label="Scrollable mining skill tree"><div class="skill-tree-world" id="skillTreeWorld"><svg class="skill-tree-lines" viewBox="0 0 1000 760" aria-hidden="true">
+<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel skill-tree-view"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER SKILL TREE</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="tree-legend"><span><i class="legend-dot available"></i> AVAILABLE</span><span><i class="legend-dot purchased"></i> LEARNED</span><span><i class="legend-dot locked"></i> LOCKED</span></div><div class="skill-tree-viewport" id="skillTreeViewport" aria-label="Scrollable mining skill tree"><div class="skill-tree-world" id="skillTreeWorld"><svg class="skill-tree-lines" viewBox="0 0 1000 820" aria-hidden="true">
 <path class="web-crosslink" d="
 M450 410 L400 342
 M550 410 L600 342
@@ -301,27 +301,27 @@ M95 410 L175 500
 M865 170 L905 340
 M905 410 L825 500
 M500 492 L500 530
-M175 570 L175 590
-M500 600 L500 660
-M825 570 L825 590
+M175 600 L175 650
+M500 630 L500 660
+M825 600 L825 650
 
 " />
 </svg>
 <div class="skill-node-slot" style="left:425px;top:410px" id="node-miningPower"></div>
 <div class="skill-node-slot" style="left:280px;top:260px" id="node-swingSpeed"></div>
 <div class="skill-node-slot" style="left:570px;top:260px" id="node-resourceDetection"></div>
-<div class="skill-node-slot future-node" style="left:90px;top:100px"><div class="future-skill"><b>ORE YIELD</b><span>Planned branch</span></div></div>
-<div class="skill-node-slot future-node" style="left:310px;top:70px"><div class="future-skill"><b>HEAVY BLOWS</b><span>Planned branch</span></div></div>
-<div class="skill-node-slot future-node" style="left:570px;top:70px"><div class="future-skill"><b>DEEP DRILLING</b><span>Planned branch</span></div></div>
-<div class="skill-node-slot future-node" style="left:790px;top:100px"><div class="future-skill"><b>GEOLOGICAL SURVEY</b><span>Planned branch</span></div></div>
-<div class="skill-node-slot future-node" style="left:20px;top:340px"><div class="future-skill"><b>PRECISION MINING</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:100px;top:500px"><div class="future-skill"><b>RAPID SWINGS</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:750px;top:500px"><div class="future-skill"><b>CRYSTAL EXPERTISE</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:830px;top:340px"><div class="future-skill"><b>ORE INSTINCT</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot" style="left:90px;top:100px" id="node-oreYield"></div>
+<div class="skill-node-slot" style="left:310px;top:70px" id="node-heavyBlows"></div>
+<div class="skill-node-slot" style="left:570px;top:70px" id="node-deepDrilling"></div>
+<div class="skill-node-slot" style="left:790px;top:100px" id="node-geologicalSurvey"></div>
+<div class="skill-node-slot" style="left:20px;top:340px" id="node-precisionMining"></div>
+<div class="skill-node-slot" style="left:100px;top:500px" id="node-rapidSwings"></div>
+<div class="skill-node-slot" style="left:750px;top:500px" id="node-crystalExpertise"></div>
+<div class="skill-node-slot" style="left:830px;top:340px" id="node-oreInstinct"></div>
 <div class="skill-node-slot" style="left:425px;top:530px" id="node-masterExcavator"></div>
-<div class="skill-node-slot future-node" style="left:100px;top:590px"><div class="future-skill"><b>POWER SURGE</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:425px;top:660px"><div class="future-skill"><b>CRYSTAL MASTERY</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:750px;top:590px"><div class="future-skill"><b>DEEP-EARTH SENSE</b><span>Planned skill</span></div></div></div></div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Drag in any direction to explore the tree. Buy Mining Power to unlock the first branches. Your existing upgrades carry over.</div></div></div>
+<div class="skill-node-slot" style="left:100px;top:650px" id="node-powerSurge"></div>
+<div class="skill-node-slot" style="left:425px;top:660px" id="node-crystalMastery"></div>
+<div class="skill-node-slot" style="left:750px;top:650px" id="node-deepEarthSense"></div></div></div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Drag in any direction to explore the tree. Buy Mining Power to unlock the first branches. Your existing upgrades carry over.</div></div></div>
 <div class="hint">Prototype note: run terrain is generated locally. Your cash and best depth are saved in this browser; saves do not sync between devices.</div>
 </div>
 <script>
@@ -343,7 +343,7 @@ const mats={
 };
 const canvas=document.getElementById('world'),ctx=canvas.getContext('2d');
 const $=id=>document.getElementById(id);
-let state={cash:0,bestDepth:0,lifetime:0,checkpoint:'plains',caveRewardClaimed:false,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0,masterExcavator:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
+let state={cash:0,bestDepth:0,lifetime:0,checkpoint:'plains',caveRewardClaimed:false,upgrades:{miningPower:0,swingSpeed:0,resourceDetection:0,masterExcavator:0,oreYield:0,heavyBlows:0,deepDrilling:0,geologicalSurvey:0,precisionMining:0,rapidSwings:0,crystalExpertise:0,oreInstinct:0,powerSurge:0,crystalMastery:0,deepEarthSense:0},workerCount:1,groupedMode:false,workers:[],runCash:0,active:false,runStart:0,terrain:[],worker:null,cameraY:0,manualScroll:0,lastSave:Date.now(),runId:0};
 let upgradeView='upgrades';
 // Surface trees are lightweight scenery; placements are deterministic so the world feels natural without flicker.
 // Small clusters alternate with isolated trees and intentionally open stretches of grass.
@@ -401,7 +401,18 @@ const upgradeDefs={
  miningPower:{name:'Mining Power',icon:'pickaxe',description:'Deal more damage with every pickaxe hit, breaking tough blocks faster.',base:25,growth:1.8,effect:l=>'+'+l+' damage per hit',max:10},
  swingSpeed:{name:'Swing Speed',icon:'lightning',description:'Swing more often so every block takes less time to break.',base:35,growth:1.85,effect:l=>Math.round((1-Math.max(.35,Math.pow(.88,l)))*100)+'% faster swings',max:10},
  resourceDetection:{name:'Resource Detection',icon:'gem',description:'Plan a mining route through nearby blocks toward valuable ore. Higher levels scout farther ahead and make smarter route choices.',base:60,growth:2,effect:l=>'Plans routes '+(6+l*5)+' rows ahead',max:8},
-  masterExcavator:{name:'Master Excavator',icon:'pickaxe',description:'Land devastating critical strikes while mining. Each rank adds an 8% chance for a hit to deal triple damage.',base:300,growth:2,max:5,effect:l=>(l*8)+'% chance to deal 3x damage'},
+ masterExcavator:{name:'Master Excavator',icon:'pickaxe',description:'Land devastating critical strikes while mining. Each rank adds an 8% chance for a hit to deal triple damage.',base:300,growth:2,max:5,effect:l=>(l*8)+'% chance to deal 3x damage'},
+ oreYield:{name:'Ore Yield',icon:'gem',description:'Increase cash earned from valuable mined materials. Each rank adds 12% to ore payouts.',base:90,growth:1.9,max:8,effect:l=>'+'+(l*12)+'% ore payout',requires:'miningPower'},
+ heavyBlows:{name:'Heavy Blows',icon:'pickaxe',description:'Sometimes land a crushing strike that deals double damage. Each rank adds 6% chance.',base:160,growth:1.95,max:5,effect:l=>(l*6)+'% chance for 2x damage',requires:'miningPower'},
+ deepDrilling:{name:'Deep Drilling',icon:'pickaxe',description:'Deal 10% more damage per rank to blocks below depth 30.',base:180,growth:1.9,max:8,effect:l=>'+'+(l*10)+'% deep-block damage',requires:'miningPower'},
+ geologicalSurvey:{name:'Geological Survey',icon:'gem',description:'Scout farther underground and improve the value of ore prospects. Each rank adds 8 scouting rows.',base:150,growth:1.9,max:5,effect:l=>'+'+(l*8)+' scouting rows',requires:'resourceDetection'},
+ precisionMining:{name:'Precision Mining',icon:'pickaxe',description:'Make a precise strike for 2 bonus damage. Each rank adds 8% chance.',base:120,growth:1.85,max:5,effect:l=>(l*8)+'% chance for +2 damage',requires:'miningPower'},
+ rapidSwings:{name:'Rapid Swings',icon:'lightning',description:'Further reduce the time between pickaxe swings. Each rank makes swings 8% faster.',base:130,growth:1.9,max:8,effect:l=>'+'+(l*8)+'% swing speed',requires:'swingSpeed'},
+ crystalExpertise:{name:'Crystal Expertise',icon:'gem',description:'Mine crystal blocks more effectively. Each rank increases damage against crystals by 20%.',base:220,growth:2,max:5,effect:l=>'+'+(l*20)+'% crystal damage',requires:'resourceDetection'},
+ oreInstinct:{name:'Ore Instinct',icon:'gem',description:'Improve route choices toward valuable ore. Each rank increases ore prospect priority by 18%.',base:170,growth:1.9,max:5,effect:l=>'+'+(l*18)+'% ore targeting',requires:'resourceDetection'},
+ powerSurge:{name:'Power Surge',icon:'lightning',description:'Build on critical-strike training with a chance to unleash a massive hit for 4x damage. Each rank adds 4% chance.',base:250,growth:2,max:5,effect:l=>(l*4)+'% chance for 4x damage',requires:'masterExcavator'},
+ crystalMastery:{name:'Crystal Mastery',icon:'gem',description:'Earn more cash from every crystal block. Each rank increases crystal payouts by 25%.',base:350,growth:2.1,max:5,effect:l=>'+'+(l*25)+'% crystal payout',requires:'crystalExpertise'},
+ deepEarthSense:{name:'Deep-Earth Sense',icon:'gem',description:'Sense valuable deposits farther down and improve targeting for gold and crystals. Each rank adds 6 scouting rows.',base:300,growth:2,max:5,effect:l=>'+'+(l*6)+' rows, +' +(l*15)+'% deep-ore priority',requires:'geologicalSurvey'},
 };
 function upgradeCost(key){const d=upgradeDefs[key];return Math.floor(d.base*Math.pow(d.growth,state.upgrades[key]||0));}
 function uiIcon(name){return '<svg class="ui-icon" aria-hidden="true" viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#sprite-'+name+'"></use></svg>';}
@@ -424,7 +435,7 @@ function renderUpgrades(){
  $('groupWorkersBtn').addEventListener('click',()=>{state.groupedMode=!state.groupedMode;syncWorkers();note(state.groupedMode?'Group Focus enabled: workers will stay closer together and focus one area.':'Independent Mode enabled: workers will spread out across the surface and choose separate columns.');save();renderUpgrades();draw();});
 }
 function renderSkillTree(){
- const defs=[{key:'miningPower'},{key:'swingSpeed',requires:'miningPower'},{key:'resourceDetection',requires:'miningPower'},{key:'masterExcavator',requires:'miningPower'}];
+ const defs=[{key:'miningPower'},{key:'swingSpeed',requires:'miningPower'},{key:'resourceDetection',requires:'miningPower'},{key:'masterExcavator',requires:'miningPower'},{key:'oreYield',requires:'miningPower'},{key:'heavyBlows',requires:'miningPower'},{key:'deepDrilling',requires:'miningPower'},{key:'geologicalSurvey',requires:'resourceDetection'},{key:'precisionMining',requires:'miningPower'},{key:'rapidSwings',requires:'swingSpeed'},{key:'crystalExpertise',requires:'resourceDetection'},{key:'oreInstinct',requires:'resourceDetection'},{key:'powerSurge',requires:'masterExcavator'},{key:'crystalMastery',requires:'crystalExpertise'},{key:'deepEarthSense',requires:'geologicalSurvey'}];
  for(const n of defs){
   const d=upgradeDefs[n.key],level=state.upgrades[n.key]||0,cost=upgradeCost(n.key),maxed=level>=d.max,unlocked=!n.requires||(state.upgrades[n.requires]||0)>0,slot=$('node-'+n.key);
   if(!slot)continue;
@@ -441,13 +452,15 @@ function renderSkillTree(){
  }
 }function workerCost(){return Math.floor(50*Math.pow(1.65,Math.max(0,state.workerCount-1)));}
 function hireWorker(){const cost=workerCost();if(state.cash<cost||state.workerCount>=24)return;state.cash-=cost;state.workerCount++;syncWorkers();const worker=state.workers[state.workers.length-1];if(state.active){const used=new Set(state.workers.slice(0,-1).map(w=>w.startX));const choices=[];for(let x=2;x<COLS-2;x++)if(!used.has(x))choices.push(x);worker.startX=choices.length?choices[Math.floor(Math.random()*choices.length)]:Math.floor(rand(2,COLS-2));worker.x=COLS/2;worker.y=.15;worker.target=null;worker.routeX=null;worker.progress=0;worker.mode='approach';}note('Hired a standard miner. Crew size: '+state.workerCount+'.');save();renderUpgrades();draw();}
-function buyUpgrade(key){const d=upgradeDefs[key];if(!d)return;const level=state.upgrades[key]||0,cost=upgradeCost(key);if(level>=d.max||state.cash<cost)return;state.cash-=cost;state.upgrades[key]=level+1;note(d.name+' upgraded to level '+(level+1)+'.');save();renderUpgrades();draw();}
+function buyUpgrade(key){const d=upgradeDefs[key];if(!d)return;const level=state.upgrades[key]||0,cost=upgradeCost(key);if(level>=d.max||state.cash<cost||(d.requires&&!(state.upgrades[d.requires]||0)))return;state.cash-=cost;state.upgrades[key]=level+1;note(d.name+' upgraded to level '+(level+1)+'.');save();renderUpgrades();draw();}
 function columnProspect(x,startY,scanRows){
- let score=0;
+ let score=0;const oreInstinct=state.upgrades.oreInstinct||0,survey=state.upgrades.geologicalSurvey||0,deepSense=state.upgrades.deepEarthSense||0;
  for(let yy=startY;yy<Math.min(ROWS-1,startY+scanRows);yy++){
   const t=tileAt(x,yy);if(!t)continue;
-  const distance=yy-startY;
-  score+=mats[t.type].value/(1+distance*.22)/(1+t.hp*.025);
+  const distance=yy-startY;let value=mats[t.type].value;
+  if(value>0)value*=1+oreInstinct*.18+survey*.08;
+  if(t.type==='gold'||t.type==='crystal')value*=1+deepSense*.15;
+  score+=value/(1+distance*.22)/(1+t.hp*.025);
  }
  return score;
 }
@@ -462,9 +475,9 @@ function chooseTarget(){
  const direct=tileAt(x,y);
  if(!direct)return null;
  const level=state.upgrades.resourceDetection||0;
- // Without the upgrade, miners keep mining the tile directly beneath them.
+ // Without Resource Detection, miners keep mining directly beneath them.
  if(level<=0)return {x,y,t:direct,score:0};
- const scanRows=6+level*5;
+ const scanRows=6+level*5+(state.upgrades.geologicalSurvey||0)*8+(state.upgrades.deepEarthSense||0)*6;
  const currentScore=columnProspect(x,y,scanRows);
  // Prefer valuable ore directly to either side, but never mine a diagonal tile
  // through a solid block at the miner's current body height.
@@ -474,8 +487,14 @@ function chooseTarget(){
   if(sideX<1||sideX>=COLS-1)continue;
   const oreTile=tileAt(sideX,y);
   if(!oreTile)continue;
-  const oreValue=mats[oreTile.type].value;
-  const directValue=mats[direct.type].value;
+  let oreValue=mats[oreTile.type].value;
+  let directValue=mats[direct.type].value;
+  const instinct=1+(state.upgrades.oreInstinct||0)*.18+(state.upgrades.geologicalSurvey||0)*.08;
+  const deepSense=1+(state.upgrades.deepEarthSense||0)*.15;
+  if(oreValue>0)oreValue*=instinct;
+  if(directValue>0)directValue*=instinct;
+  if(oreTile.type==='gold'||oreTile.type==='crystal')oreValue*=deepSense;
+  if(direct.type==='gold'||direct.type==='crystal')directValue*=deepSense;
   if(oreValue<=directValue)continue;
   const entryY=Math.floor(w.y);
   const entryTile=tileAt(sideX,entryY);
@@ -543,11 +562,20 @@ function tickWorker(dt){
  const t=tileAt(w.target.x,w.target.y);if(!t){w.target=null;return;}
  const tx=w.target.x,ty=w.target.y;
  w.mode='mine';w.progress+=dt;
- const hitEvery=Math.max(.35,Math.pow(.88,state.upgrades.swingSpeed||0));
+ const swingSpeed=Math.max(.35,Math.pow(.88,state.upgrades.swingSpeed||0))*Math.pow(.92,state.upgrades.rapidSwings||0);
+ const hitEvery=Math.max(.22,swingSpeed);
  if(w.progress>=hitEvery){
-  w.progress-=hitEvery;const baseDamage=1+(state.upgrades.miningPower||0);const criticalChance=(state.upgrades.masterExcavator||0)*0.08;const critical=Math.random()<criticalChance;t.hp-=baseDamage*(critical?3:1);w.walk+=dt;
+  w.progress-=hitEvery;let damage=1+(state.upgrades.miningPower||0);
+  if(ty>=30)damage*=1+(state.upgrades.deepDrilling||0)*.10;
+  if(type==='crystal')damage*=1+(state.upgrades.crystalExpertise||0)*.20;
+  if(Math.random()<(state.upgrades.heavyBlows||0)*.06)damage*=2;
+  if(Math.random()<(state.upgrades.masterExcavator||0)*.08)damage*=3;
+  if(Math.random()<(state.upgrades.precisionMining||0)*.08)damage+=2;
+  if(Math.random()<(state.upgrades.powerSurge||0)*.04)damage*=4;
+  t.hp-=damage;w.walk+=dt;
   if(t.hp<=0){
-   const type=t.type,val=mats[type].value;
+   const type=t.type,baseValue=mats[type].value;let val=baseValue;
+   if(baseValue>0){val=Math.round(baseValue*(1+(state.upgrades.oreYield||0)*.12));if(type==='crystal')val=Math.round(val*(1+(state.upgrades.crystalMastery||0)*.25));}
    if(ty===1&&type==='grass'&&isTreeColumn(tx))treeFalls.push({x:tx,direction:tx<COLS/2?-1:1,start:performance.now(),duration:620});
    if(type==='caveRock'&&hasCaveStalactite(tx,ty,t))caveFalls.push({x:tx,y:ty,seed:t.seed,start:performance.now(),duration:560});
    state.terrain[ty][tx]=null;state.cash+=val;state.runCash+=val;state.lifetime+=val;
