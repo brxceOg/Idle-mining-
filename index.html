@@ -41,7 +41,7 @@ canvas{display:block;width:100%;height:min(62vh,560px);min-height:330px;backgrou
 .tree-legend{display:flex;flex-wrap:wrap;gap:10px;margin:-2px 0 10px;font-size:8px;color:#c0d0b6}.tree-legend span{display:flex;align-items:center;gap:5px}
 .legend-dot{display:inline-block;width:9px;height:9px;border:2px solid #87928b;background:#303c35}.legend-dot.available{background:#8da94b;border-color:#d8f19a}.legend-dot.purchased{background:#5cb9a4;border-color:#b5fff0}.legend-dot.locked{background:#303c35;border-color:#68746b}
 .skill-tree-viewport{height:min(65vh,650px);min-height:300px;overflow:auto;position:relative;border:2px solid #657c68;background:#111f19;touch-action:none;overscroll-behavior:contain;cursor:grab;scrollbar-color:#78945f #172a22;scrollbar-width:thin}
-.skill-tree-world{position:relative;width:1000px;height:900px;zoom:.88;background-color:#172820;background-image:radial-gradient(ellipse at 50% 48%,rgba(98,143,89,.12),transparent 56%),linear-gradient(rgba(144,174,131,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(144,174,131,.055) 1px,transparent 1px);background-size:auto,20px 20px,20px 20px}
+.skill-tree-world{position:relative;width:1000px;height:680px;zoom:.88;background-color:#172820;background-image:radial-gradient(ellipse at 50% 48%,rgba(98,143,89,.12),transparent 56%),linear-gradient(rgba(144,174,131,.055) 1px,transparent 1px),linear-gradient(90deg,rgba(144,174,131,.055) 1px,transparent 1px);background-size:auto,20px 20px,20px 20px}
 .skill-tree-lines{position:absolute;inset:0;width:1000px;height:900px;pointer-events:none}.skill-tree-lines path{fill:none;stroke:#66866a;stroke-width:2.5;vector-effect:non-scaling-stroke;stroke-linecap:round;stroke-linejoin:round;opacity:.78}
 .skill-node-slot{position:absolute;width:150px;min-height:82px;z-index:1}.skill-node{width:100%;min-height:82px;padding:6px;border:2px solid #778a72;background:#263d2e;color:#fff0c5;box-shadow:inset 2px 2px #ffffff14,inset -2px -2px #0004,0 3px #0a130e;display:flex;flex-direction:column;gap:3px}
 .skill-node.available{border-color:#d8f19a;background:#354b2d;box-shadow:0 0 9px #c8ed7930,inset 2px 2px #ffffff19,inset -2px -2px #0004,0 3px #0a130e}.skill-node.purchased{border-color:#83dfc6;background:#21483d}.skill-node.locked{filter:saturate(.45);opacity:.72}
@@ -286,7 +286,7 @@ canvas{position:absolute;inset:0;width:100%;height:100%;min-height:0;background:
   <div class="panel"><div class="world-head"><strong>HOW TO PLAY</strong></div><div class="log">Start a run to send your workers underground. Each miner works its own column. Dirt earns $1, stone earns $2, and ore rewards increase with depth. Stop whenever you want: cash is kept and excavated terrain is restored.</div></div>
  </aside>
 </div>
-<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel skill-tree-view"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER SKILL TREE</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="tree-legend"><span><i class="legend-dot available"></i> AVAILABLE</span><span><i class="legend-dot purchased"></i> LEARNED</span><span><i class="legend-dot locked"></i> LOCKED</span></div><div class="skill-tree-viewport" id="skillTreeViewport" aria-label="Scrollable mining skill tree"><div class="skill-tree-world" id="skillTreeWorld"><svg class="skill-tree-lines" viewBox="0 0 1000 900" aria-hidden="true">
+<div class="upgrade-overlay" id="upgradeOverlay" role="dialog" aria-modal="true" aria-labelledby="upgradeTitle"><div class="upgrade-panel skill-tree-view"><div class="upgrade-head"><div class="upgrade-title" id="upgradeTitle">MINER SKILL TREE</div><button class="upgrade-close" id="upgradeClose" type="button">✕ CLOSE</button></div><div class="upgrade-cash" id="upgradeCash">Available cash: $0</div><div class="tree-legend"><span><i class="legend-dot available"></i> AVAILABLE</span><span><i class="legend-dot purchased"></i> LEARNED</span><span><i class="legend-dot locked"></i> LOCKED</span></div><div class="skill-tree-viewport" id="skillTreeViewport" aria-label="Scrollable mining skill tree"><div class="skill-tree-world" id="skillTreeWorld"><svg class="skill-tree-lines" viewBox="0 0 1000 680" aria-hidden="true">
 <path class="web-crosslink" d="
 M450 410 L400 342
 M550 410 L600 342
@@ -297,14 +297,13 @@ M690 260 L790 170
 M280 310 L170 375
 M720 310 L830 375
 M165 170 L165 340
-M170 410 L175 610
+M175 410 L175 470
 M865 170 L905 340
-M830 410 L825 610
-M175 680 L275 700
-M350 735 L365 735
-M515 735 L530 735
-M680 735 L695 735
-M825 680 L770 700
+M905 410 L825 470
+M250 505 L425 505
+M175 540 L175 570
+M500 540 L500 570
+M825 540 L825 570
 " />
 </svg>
 <div class="skill-node-slot" style="left:425px;top:410px" id="node-miningPower"></div>
@@ -315,13 +314,13 @@ M825 680 L770 700
 <div class="skill-node-slot future-node" style="left:570px;top:70px"><div class="future-skill"><b>DEEP DRILLING</b><span>Planned branch</span></div></div>
 <div class="skill-node-slot future-node" style="left:790px;top:100px"><div class="future-skill"><b>GEOLOGICAL SURVEY</b><span>Planned branch</span></div></div>
 <div class="skill-node-slot future-node" style="left:20px;top:340px"><div class="future-skill"><b>PRECISION MINING</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:100px;top:610px"><div class="future-skill"><b>RAPID SWINGS</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:750px;top:610px"><div class="future-skill"><b>CRYSTAL EXPERTISE</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot future-node" style="left:100px;top:470px"><div class="future-skill"><b>RAPID SWINGS</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot future-node" style="left:750px;top:470px"><div class="future-skill"><b>CRYSTAL EXPERTISE</b><span>Planned skill</span></div></div>
 <div class="skill-node-slot future-node" style="left:830px;top:340px"><div class="future-skill"><b>ORE INSTINCT</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:200px;top:700px"><div class="future-skill"><b>MASTER EXCAVATOR</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:365px;top:700px"><div class="future-skill"><b>POWER SURGE</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:530px;top:700px"><div class="future-skill"><b>CRYSTAL MASTERY</b><span>Planned skill</span></div></div>
-<div class="skill-node-slot future-node" style="left:695px;top:700px"><div class="future-skill"><b>DEEP-EARTH SENSE</b><span>Planned skill</span></div></div></div></div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Drag in any direction to explore the tree. Buy Mining Power to unlock the first branches. Your existing upgrades carry over.</div></div></div>
+<div class="skill-node-slot future-node" style="left:425px;top:470px"><div class="future-skill"><b>MASTER EXCAVATOR</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot future-node" style="left:100px;top:570px"><div class="future-skill"><b>POWER SURGE</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot future-node" style="left:425px;top:570px"><div class="future-skill"><b>CRYSTAL MASTERY</b><span>Planned skill</span></div></div>
+<div class="skill-node-slot future-node" style="left:750px;top:570px"><div class="future-skill"><b>DEEP-EARTH SENSE</b><span>Planned skill</span></div></div></div></div><div class="upgrade-grid" id="upgradeGrid"></div><div class="upgrade-foot" id="upgradeFoot">Drag in any direction to explore the tree. Buy Mining Power to unlock the first branches. Your existing upgrades carry over.</div></div></div>
 <div class="hint">Prototype note: run terrain is generated locally. Your cash and best depth are saved in this browser; saves do not sync between devices.</div>
 </div>
 <script>
