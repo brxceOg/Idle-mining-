@@ -400,7 +400,8 @@ function tileAt(x,y){if(x<0||x>=COLS||y<0||y>=ROWS)return null;return state.terr
 const upgradeDefs={
  miningPower:{name:'Mining Power',icon:'pickaxe',description:'Deal more damage with every pickaxe hit, breaking tough blocks faster.',base:25,growth:1.8,effect:l=>'+'+l+' damage per hit',max:10},
  swingSpeed:{name:'Swing Speed',icon:'lightning',description:'Swing more often so every block takes less time to break.',base:35,growth:1.85,effect:l=>Math.round((1-Math.max(.35,Math.pow(.88,l)))*100)+'% faster swings',max:10},
- resourceDetection:{name:'Resource Detection',icon:'gem',description:'Plan a mining route through nearby blocks toward valuable ore. Higher levels scout farther ahead and make smarter route choices.',base:60,growth:2,effect:l=>'Plans routes '+(6+l*5)+' rows ahead',max:8},\n  masterExcavator:{name:'Master Excavator',icon:'pickaxe',description:'Land devastating critical strikes while mining. Each rank adds an 8% chance for a hit to deal triple damage.',base:300,growth:2,max:5,effect:l=>(l*8)+'% chance to deal 3x damage'},
+ resourceDetection:{name:'Resource Detection',icon:'gem',description:'Plan a mining route through nearby blocks toward valuable ore. Higher levels scout farther ahead and make smarter route choices.',base:60,growth:2,effect:l=>'Plans routes '+(6+l*5)+' rows ahead',max:8},
+  masterExcavator:{name:'Master Excavator',icon:'pickaxe',description:'Land devastating critical strikes while mining. Each rank adds an 8% chance for a hit to deal triple damage.',base:300,growth:2,max:5,effect:l=>(l*8)+'% chance to deal 3x damage'},
 };
 function upgradeCost(key){const d=upgradeDefs[key];return Math.floor(d.base*Math.pow(d.growth,state.upgrades[key]||0));}
 function uiIcon(name){return '<svg class="ui-icon" aria-hidden="true" viewBox="0 0 16 16" shape-rendering="crispEdges"><use href="#sprite-'+name+'"></use></svg>';}
