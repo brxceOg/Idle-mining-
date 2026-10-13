@@ -567,7 +567,7 @@ function tickWorker(dt){
  if(w.progress>=hitEvery){
   w.progress-=hitEvery;let damage=1+(state.upgrades.miningPower||0);
   if(ty>=30)damage*=1+(state.upgrades.deepDrilling||0)*.10;
-  if(type==='crystal')damage*=1+(state.upgrades.crystalExpertise||0)*.20;
+  if(t.type==='crystal')damage*=1+(state.upgrades.crystalExpertise||0)*.20;
   if(Math.random()<(state.upgrades.heavyBlows||0)*.06)damage*=2;
   if(Math.random()<(state.upgrades.masterExcavator||0)*.08)damage*=3;
   if(Math.random()<(state.upgrades.precisionMining||0)*.08)damage+=2;
